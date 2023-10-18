@@ -2,6 +2,7 @@ package entity
 
 import (
 	"time"
+	"vietcard-backend/pkg/timeutil"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -34,30 +35,29 @@ func (user *User) SetDefault() *User {
 	user.Streak = 1
 	user.LastStreak = user.CreatedAt
 	user.IsAdmin = false
-    user.MaxNewCardsLearn = 20;
-    user.MaxCardsReview = 100;
+	user.MaxNewCardsLearn = 20
+	user.MaxCardsReview = 100
 	return user
 }
 
 func (user *User) UpdateStreak() *User {
-	t := time.Now()
-	y, m, d := t.Date()
-	ly, lm, ld := user.LastStreak.Date()
-	if y == ly && m == lm && d == ld {
+	cur := timeutil.TruncateToDay(time.Now())
+	last := timeutil.TruncateToDay(user.LastStreak)
+	if cur.Equal(last) {
 		return user
 	}
-	yy, ym, yd := t.AddDate(0, 0, -1).Date()
-	if yy == ly && ym == lm && yd == ld {
+	ycur := cur.AddDate(0, 0, -1)
+	if ycur.Equal(last) {
 		user.Streak++
 	} else {
 		user.Streak = 1
 	}
-	user.LastStreak = t
+	user.LastStreak = time.Now()
 	return user
 }
 
 func (user *User) UpdateLevel() *User {
-	if user.XP >= user.XPToLevelUp {
+	for user.XP >= user.XPToLevelUp {
 		user.Level++
 		user.XP -= user.XPToLevelUp
 		user.XPToLevelUp += LEVEL_XP_INC

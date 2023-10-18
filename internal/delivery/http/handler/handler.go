@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 	"vietcard-backend/bootstrap"
+	"vietcard-backend/internal/delivery/http/request"
+	"vietcard-backend/internal/delivery/http/response"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/usecase"
 
@@ -40,27 +42,27 @@ func NewHandler(loginUc usecase.LoginUsecase, signUpUc usecase.SignupUsecase, re
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Router			/api/signup [post]
-//	@Param			signup_request	formData	SignupRequest	true	"Sign Up Request"
-//	@Success		200				{object}	SignupResponse
-//	@Failure		400				{object}	ErrorResponse
-//	@Failure		409				{object}	ErrorResponse
-//	@Failure		500				{object}	ErrorResponse
+//	@Param			signup_request	formData	request.SignupRequest	true	"Sign Up Request"
+//	@Success		200				{object}	response.SignupResponse
+//	@Failure		400				{object}	response.ErrorResponse
+//	@Failure		409				{object}	response.ErrorResponse
+//	@Failure		500				{object}	response.ErrorResponse
 func (h *restHandler) SignUp(c *gin.Context) {
-	var request SignupRequest
+	var request request.SignupRequest
 
 	err := c.ShouldBind(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	user, err := h.signUpUsecase.GetUserByEmail(&request.Email)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	if user != nil {
-		c.JSON(http.StatusConflict, ErrorResponse{Message: "User already exists with the given email"})
+		c.JSON(http.StatusConflict, response.ErrorResponse{Message: "User already exists with the given email"})
 		return
 	}
 
@@ -69,7 +71,7 @@ func (h *restHandler) SignUp(c *gin.Context) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -83,23 +85,23 @@ func (h *restHandler) SignUp(c *gin.Context) {
 
 	err = h.signUpUsecase.Create(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	accessToken, er := h.signUpUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
 	if er != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	refreshToken, err := h.signUpUsecase.CreateRefreshToken(user, &bootstrap.E.RefreshTokenSecret, bootstrap.E.RefreshTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	signupResponse := SignupResponse{
+	signupResponse := response.SignupResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -116,45 +118,45 @@ func (h *restHandler) SignUp(c *gin.Context) {
 //	@Accept			multipart/form-data
 //	@Produce		json
 //	@Router			/api/login [post]
-//	@Param			login_request	formData	LoginRequest	true	"Log In Request"
-//	@Success		200				{object}	LoginResponse
-//	@Failure		400				{object}	ErrorResponse
-//	@Failure		401				{object}	ErrorResponse
-//	@Failure		404				{object}	ErrorResponse
-//	@Failure		500				{object}	ErrorResponse
+//	@Param			login_request	formData	request.LoginRequest	true	"Log In Request"
+//	@Success		200				{object}	response.LoginResponse
+//	@Failure		400				{object}	response.ErrorResponse
+//	@Failure		401				{object}	response.ErrorResponse
+//	@Failure		404				{object}	response.ErrorResponse
+//	@Failure		500				{object}	response.ErrorResponse
 func (h *restHandler) LogIn(c *gin.Context) {
-	var request LoginRequest
+	var request request.LoginRequest
 
 	err := c.ShouldBind(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	user, err := h.userUsecase.GetUserByEmail(&request.Email)
 	if err != nil {
-		c.JSON(http.StatusNotFound, ErrorResponse{Message: "User not found with the given email"})
+		c.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User not found with the given email"})
 		return
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(request.Password)) != nil {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Message: "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Invalid credentials"})
 		return
 	}
 
 	accessToken, err := h.loginUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	refreshToken, err := h.loginUsecase.CreateRefreshToken(user, &bootstrap.E.RefreshTokenSecret, bootstrap.E.RefreshTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	loginResponse := LoginResponse{
+	loginResponse := response.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -171,44 +173,44 @@ func (h *restHandler) LogIn(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Router			/api/refresh [post]
-//	@Param			refresh_token_request	body		RefreshTokenRequest	true	"Refresh Token Request"
-//	@Success		200						{object}	RefreshTokenResponse
-//	@Failure		401						{object}	ErrorResponse
-//	@Failure		500						{object}	ErrorResponse
+//	@Param			refresh_token_request	body		request.RefreshTokenRequest	true	"Refresh Token Request"
+//	@Success		200						{object}	response.RefreshTokenResponse
+//	@Failure		401						{object}	response.ErrorResponse
+//	@Failure		500						{object}	response.ErrorResponse
 func (h *restHandler) RefreshToken(c *gin.Context) {
-	var request RefreshTokenRequest
+	var request request.RefreshTokenRequest
 
 	err := c.ShouldBind(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	id, err := h.refreshTokenUsecase.ExtractIDFromToken(&request.RefreshToken, &bootstrap.E.RefreshTokenSecret)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Message: "User not found"})
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "User not found"})
 		return
 	}
 
 	user, err := h.userUsecase.GetUserByID(&id)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, ErrorResponse{Message: "User not found"})
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "User not found"})
 		return
 	}
 
 	accessToken, err := h.refreshTokenUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	refreshToken, err := h.refreshTokenUsecase.CreateRefreshToken(user, &bootstrap.E.RefreshTokenSecret, bootstrap.E.RefreshTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	refreshTokenResponse := RefreshTokenResponse{
+	refreshTokenResponse := response.RefreshTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -226,32 +228,32 @@ func (h *restHandler) RefreshToken(c *gin.Context) {
 //	@Produce		json
 //	@Security		ApiKeyAuth
 //	@Router			/api/card/create [post]
-//	@Param			create_card_request	body		CreateCardRequest	true	"Create Card Request"
-//	@Success		200					{object}	CreateCardResponse
-//	@Failure		500					{object}	ErrorResponse
+//	@Param			create_card_request	body		request.CreateCardRequest	true	"Create Card Request"
+//	@Success		200					{object}	response.CreateCardResponse
+//	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) CreateCard(c *gin.Context) {
 	var (
-		req CreateCardRequest
+		req request.CreateCardRequest
 		err error
 	)
 
 	uID, err := GetLoggedInUserID(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	req.UserID, err = primitive.ObjectIDFromHex(uID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	err = c.ShouldBind(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	if len(req.WrongAnswers) < 3 {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Must have at least 3 wrong answers"})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Must have at least 3 wrong answers"})
 		return
 	}
 
@@ -264,11 +266,11 @@ func (h *restHandler) CreateCard(c *gin.Context) {
 	}
 	err = h.cardUsecase.CreateCard(card)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	createCardResponse := CreateCardResponse{
+	createCardResponse := response.CreateCardResponse{
 		Success: true,
 	}
 
@@ -285,35 +287,35 @@ func (h *restHandler) CreateCard(c *gin.Context) {
 //	@Produce		json
 //	@Security		ApiKeyAuth
 //	@Router			/api/deck/create [post]
-//	@Param			create_deck_request	body		CreateDeckRequest	true	"Create Deck Request"
-//	@Success		200					{object}	CreateDeckResponse
-//	@Failure		500					{object}	ErrorResponse
+//	@Param			create_deck_request	body		request.CreateDeckRequest	true	"Create Deck Request"
+//	@Success		200					{object}	response.CreateDeckResponse
+//	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) CreateDeck(c *gin.Context) {
 	var (
-		req CreateDeckRequest
+		req request.CreateDeckRequest
 		err error
 	)
 
 	uID, err := GetLoggedInUserID(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	req.UserID, err = primitive.ObjectIDFromHex(uID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	err = c.ShouldBind(&req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	user, err := h.userUsecase.GetUserByID(&uID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	deck := &entity.Deck{
@@ -325,11 +327,11 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 	}
 	err = h.deckUsecase.CreateDeck(deck)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	createDeckResponse := CreateDeckResponse{
+	createDeckResponse := response.CreateDeckResponse{
 		Success: true,
 	}
 
@@ -346,17 +348,17 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 //	@Security		ApiKeyAuth
 //	@Router			/api/deck/review-cards [get]
 //	@Success		200	{object}	[]entity.DeckWithReviewCards
-//	@Failure		500	{object}	ErrorResponse
+//	@Failure		500	{object}	response.ErrorResponse
 func (h *restHandler) GetDeckWithReviewCards(c *gin.Context) {
 	uID, err := GetLoggedInUserID(c)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-    deckWithCards, err := h.deckUsecase.GetReviewCardsAllDecksOfUser(&uID)
+	deckWithCards, err := h.deckUsecase.GetReviewCardsAllDecksOfUser(&uID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
