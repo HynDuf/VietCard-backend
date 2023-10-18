@@ -14,13 +14,19 @@ type restHandler struct {
 	loginUsecase        usecase.LoginUsecase
 	signUpUsecase       usecase.SignupUsecase
 	refreshTokenUsecase usecase.RefreshTokenUsecase
+	cardUsecase         usecase.CardUsecase
+	deckUsecase         usecase.DeckUsecase
+	userUsecase         usecase.UserUsecase
 }
 
-func NewHandler(loginUsecase usecase.LoginUsecase, signUpUsecase usecase.SignupUsecase, refreshTokenUsecase usecase.RefreshTokenUsecase) RestHandler {
+func NewHandler(loginUc usecase.LoginUsecase, signUpUc usecase.SignupUsecase, refreshTokenUc usecase.RefreshTokenUsecase, cardUc usecase.CardUsecase, deckUc usecase.DeckUsecase, userUc usecase.UserUsecase) RestHandler {
 	return &restHandler{
-		loginUsecase:        loginUsecase,
-		signUpUsecase:       signUpUsecase,
-		refreshTokenUsecase: refreshTokenUsecase,
+		loginUsecase:        loginUc,
+		signUpUsecase:       signUpUc,
+		refreshTokenUsecase: refreshTokenUc,
+		cardUsecase:         cardUc,
+		deckUsecase:         deckUc,
+		userUsecase:         userUc,
 	}
 }
 
@@ -124,7 +130,7 @@ func (h *restHandler) LogIn(c *gin.Context) {
 		return
 	}
 
-	user, err := h.loginUsecase.GetUserByEmail(&request.Email)
+	user, err := h.userUsecase.GetUserByEmail(&request.Email)
 	if err != nil {
 		c.JSON(http.StatusNotFound, ErrorResponse{Message: "User not found with the given email"})
 		return
@@ -183,7 +189,7 @@ func (h *restHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	user, err := h.refreshTokenUsecase.GetUserByID(&id)
+	user, err := h.userUsecase.GetUserByID(&id)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorResponse{Message: "User not found"})
 		return
@@ -207,4 +213,96 @@ func (h *restHandler) RefreshToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, refreshTokenResponse)
+}
+
+// CreateCard	godoc
+// CreateCard	API
+//
+//	@Summary		Create New Card
+//	@Description	Create New Card
+//	@Tags			card
+//	@Accept			json
+//	@Produce		json
+//	@Router			/api/card/create [post]
+//	@Param			create_card_request	body		CreateCardRequest	true	"Create Card Request"
+//	@Success		200					{object}	CreateCardResponse
+//	@Failure		500					{object}	ErrorResponse
+func (h *restHandler) CreateCard(c *gin.Context) {
+	var req CreateCardRequest
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+	if len(req.WrongAnswers) < 3 {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Must be at least 3 wrong answers"})
+		return
+	}
+
+	card := &entity.Card{
+		UserID:       req.UserID,
+		DeckID:       req.DeckID,
+		Question:     req.Question,
+		Answer:       req.Answer,
+		WrongAnswers: req.WrongAnswers,
+	}
+	err = h.cardUsecase.CreateCard(card)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	createCardResponse := CreateCardResponse{
+		Success: true,
+	}
+
+	c.JSON(http.StatusOK, createCardResponse)
+}
+
+// CreateDeck	godoc
+// CreateDeck	API
+//
+//	@Summary		Create New Deck
+//	@Description	Create New Deck
+//	@Tags			deck
+//	@Accept			json
+//	@Produce		json
+//	@Router			/api/deck/create [post]
+//	@Param			create_deck_request	body		CreateDeckRequest	true	"Create Deck Request"
+//	@Success		200					{object}	CreateDeckResponse
+//	@Failure		500					{object}	ErrorResponse
+func (h *restHandler) CreateDeck(c *gin.Context) {
+	var req CreateDeckRequest
+
+	err := c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	uID := req.UserID.Hex()
+	user, err := h.userUsecase.GetUserByID(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+	deck := &entity.Deck{
+		UserID: req.UserID,
+		Name:   req.Name,
+	}
+	if user.IsAdmin {
+		deck.IsGlobal = true
+	}
+	err = h.deckUsecase.CreateDeck(deck)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	createDeckResponse := CreateDeckResponse{
+		Success: true,
+	}
+
+	c.JSON(http.StatusOK, createDeckResponse)
 }

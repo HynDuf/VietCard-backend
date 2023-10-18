@@ -17,10 +17,6 @@ func NewRefreshTokenUsecase(userRepository repository.UserRepository) usecase.Re
 	}
 }
 
-func (rtu *refreshTokenUsecase) GetUserByID(email *string) (*entity.User, error) {
-	return rtu.userRepository.GetByID(email)
-}
-
 func (rtu *refreshTokenUsecase) CreateAccessToken(user *entity.User, secret *string, expiry int) (accessToken string, err error) {
 	return tokenutil.CreateAccessToken(user, secret, expiry)
 }

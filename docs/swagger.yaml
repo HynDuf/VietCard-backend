@@ -1,5 +1,43 @@
 basePath: /
 definitions:
+  handler.CreateCardRequest:
+    properties:
+      answer:
+        type: string
+      deck_id:
+        type: string
+      question:
+        type: string
+      user_id:
+        type: string
+      wrong_answers:
+        items:
+          type: string
+        type: array
+    required:
+    - answer
+    - deck_id
+    - question
+    - user_id
+    - wrong_answers
+    type: object
+  handler.CreateCardResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  handler.CreateDeckRequest:
+    properties:
+      name:
+        type: string
+      user_id:
+        type: string
+    type: object
+  handler.CreateDeckResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   handler.ErrorResponse:
     properties:
       error:
@@ -45,6 +83,58 @@ info:
   title: VietCard Backend API
   version: "1.0"
 paths:
+  /api/card/create:
+    post:
+      consumes:
+      - application/json
+      description: Create New Card
+      parameters:
+      - description: Create Card Request
+        in: body
+        name: create_card_request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateCardRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateCardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create New Card
+      tags:
+      - card
+  /api/deck/create:
+    post:
+      consumes:
+      - application/json
+      description: Create New Deck
+      parameters:
+      - description: Create Deck Request
+        in: body
+        name: create_deck_request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateDeckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateDeckResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create New Deck
+      tags:
+      - deck
   /api/login:
     post:
       consumes:

@@ -24,6 +24,86 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/card/create": {
+            "post": {
+                "description": "Create New Card",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "card"
+                ],
+                "summary": "Create New Card",
+                "parameters": [
+                    {
+                        "description": "Create Card Request",
+                        "name": "create_card_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateCardRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateCardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deck/create": {
+            "post": {
+                "description": "Create New Deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Create New Deck",
+                "parameters": [
+                    {
+                        "description": "Create Deck Request",
+                        "name": "create_deck_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateDeckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateDeckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Log In",
@@ -194,6 +274,63 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.CreateCardRequest": {
+            "type": "object",
+            "required": [
+                "answer",
+                "deck_id",
+                "question",
+                "user_id",
+                "wrong_answers"
+            ],
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "deck_id": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "wrong_answers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "handler.CreateCardResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.CreateDeckRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CreateDeckResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "handler.ErrorResponse": {
             "type": "object",
             "properties": {
