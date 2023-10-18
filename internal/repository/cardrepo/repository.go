@@ -2,13 +2,14 @@ package cardrepo
 
 import (
 	"context"
-	"errors"
+	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type cardRepository struct {
@@ -48,20 +49,6 @@ func (cr *cardRepository) GetCardByID(id *string) (*entity.Card, error) {
 	return &card, nil
 }
 
-func (cr *cardRepository) UpdateCard(card *entity.Card) error {
-	oID := card.ID
-	var newCard entity.Card
-	err := cr.db.Collection(cr.colName).FindOneAndReplace(context.TODO(), bson.D{{Key: "_id", Value: oID}}, card).Decode(&newCard)
-	if err != nil {
-		return err
-	}
-	if newCard.ID != card.ID {
-		err = errors.New("error: updated card had different ID")
-		return err
-	}
-	return nil
-}
-
 func (cr *cardRepository) UpdateCardReview(card *entity.Card) error {
 	oID := card.ID
 	filter := bson.D{{Key: "_id", Value: oID}}
@@ -76,4 +63,20 @@ func (cr *cardRepository) UpdateCardReview(card *entity.Card) error {
 		return err
 	}
 	return nil
+}
+
+func (cr *cardRepository) UpdateCard(cardID *string, req *request.UpdateCardRequest) (*entity.Card, error) {
+	cID, err := primitive.ObjectIDFromHex(*cardID)
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.D{{Key: "_id", Value: cID}}
+	update := bson.D{{Key: "$set", Value: *req}}
+	option := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updatedCard entity.Card
+	err = cr.db.Collection(cr.colName).FindOneAndUpdate(context.TODO(), filter, update, option).Decode(&updatedCard)
+	if err != nil {
+		return nil, err
+	}
+	return &updatedCard, nil
 }

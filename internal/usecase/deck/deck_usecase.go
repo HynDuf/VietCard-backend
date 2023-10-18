@@ -2,6 +2,7 @@ package deck
 
 import (
 	"time"
+	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
 	"vietcard-backend/internal/domain/interface/usecase"
@@ -28,8 +29,8 @@ func (uc *deckUsecase) GetDeckByID(id *string) (*entity.Deck, error) {
 	return uc.deckRepository.GetDeckByID(id)
 }
 
-func (uc *deckUsecase) UpdateDeck(deck *entity.Deck) error {
-	return uc.deckRepository.UpdateDeck(deck)
+func (uc *deckUsecase) UpdateDeck(deckID *string, req *request.UpdateDeckRequest) (*entity.Deck, error) {
+	return uc.deckRepository.UpdateDeck(deckID, req)
 }
 
 func (uc *deckUsecase) GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error) {
@@ -44,15 +45,15 @@ func (uc *deckUsecase) GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.D
 	numNewCards := 0
 	numRedCards := 0
 	numReviewCards := 0
-    curTime := timeutil.TruncateToDay(time.Now())
+	curTime := timeutil.TruncateToDay(time.Now())
 	for i := range *rawDeckWithCards {
 		deck := (*rawDeckWithCards)[i]
 		var cards []entity.Card
 		for _, card := range deck.Cards {
 			reviewTime := timeutil.TruncateToDay(card.NextReview)
-            if reviewTime.After(curTime) {
-                continue
-            }
+			if reviewTime.After(curTime) {
+				continue
+			}
 			if card.NumReviews == 0 {
 				if numNewCards < user.MaxNewCardsLearn {
 					numNewCards++

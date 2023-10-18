@@ -2,13 +2,14 @@ package deckrepo
 
 import (
 	"context"
-	"errors"
+	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type deckRepository struct {
@@ -48,18 +49,20 @@ func (dr *deckRepository) GetDeckByID(id *string) (*entity.Deck, error) {
 	return &deck, nil
 }
 
-func (dr *deckRepository) UpdateDeck(deck *entity.Deck) error {
-	oID := deck.ID
-	var newDeck entity.Deck
-	err := dr.db.Collection(dr.colName).FindOneAndReplace(context.TODO(), bson.D{{Key: "_id", Value: oID}}, deck).Decode(&newDeck)
+func (dr *deckRepository) UpdateDeck(deckID *string, req *request.UpdateDeckRequest) (*entity.Deck, error) {
+	dID, err := primitive.ObjectIDFromHex(*deckID)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if newDeck.ID != deck.ID {
-		err = errors.New("error: updated card had different ID")
-		return err
+	filter := bson.D{{Key: "_id", Value: dID}}
+	update := bson.D{{Key: "$set", Value: *req}}
+	option := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updatedDeck entity.Deck
+	err = dr.db.Collection(dr.colName).FindOneAndUpdate(context.TODO(), filter, update, option).Decode(&updatedDeck)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return &updatedDeck, nil
 }
 
 func (dr *deckRepository) GetCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error) {

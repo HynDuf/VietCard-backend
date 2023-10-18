@@ -64,7 +64,10 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 
 	protectedRouter := gin.Group("")
 	protectedRouter.Use(middleware.JwtAuthMiddleware(bootstrap.E.AccessTokenSecret))
+	protectedRouter.PUT("/api/user/update", h.UpdateUser)
 	protectedRouter.POST("/api/card/create", h.CreateCard)
+	protectedRouter.PUT("/api/card/update", h.UpdateCard)
 	protectedRouter.POST("/api/deck/create", h.CreateDeck)
+	protectedRouter.PUT("/api/deck/update", h.UpdateDeck)
 	protectedRouter.GET("/api/deck/review-cards", h.GetDeckWithReviewCards)
 }

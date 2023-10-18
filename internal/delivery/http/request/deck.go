@@ -7,3 +7,8 @@ type CreateDeckRequest struct {
 	Name   string             `json:"name" binding:"required"`
 }
 
+type UpdateDeckRequest struct {
+	DeckID   *primitive.ObjectID `json:"deck_id" bson:"_id,omitempty" binding:"required"`
+	IsGlobal *bool               `json:"is_global" bson:"is_global,omitempty"`
+	Name     *string             `json:"name" bson:"name,omitempty"`
+}

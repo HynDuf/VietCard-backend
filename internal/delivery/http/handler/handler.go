@@ -364,3 +364,171 @@ func (h *restHandler) GetDeckWithReviewCards(c *gin.Context) {
 
 	c.JSON(http.StatusOK, deckWithCards)
 }
+
+// UpdateUser	godoc
+// UpdateUser	API
+//
+//	@Summary		Update User Details
+//	@Description	Update User Details
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/user/update [put]
+//	@Param			update_user_request	body		request.UpdateUserRequest	true	"Update User Request"
+//	@Success		200					{object}	response.UpdateUserResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) UpdateUser(c *gin.Context) {
+	var (
+		req request.UpdateUserRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if req.HashedPassword != nil {
+		encryptedPassword, err := bcrypt.GenerateFromPassword(
+			[]byte(*req.HashedPassword),
+			bcrypt.DefaultCost,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+			return
+		}
+		pass := string(encryptedPassword)
+		req.HashedPassword = &pass
+	}
+
+	user, err := h.userUsecase.UpdateUser(&uID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.UpdateUserResponse{
+		Success: true,
+		User:    *user,
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// UpdateCard	godoc
+// UpdateCard	API
+//
+//	@Summary		Update Card Details
+//	@Description	Update Card Details
+//	@Tags			card
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/card/update [put]
+//	@Param			update_card_request	body		request.UpdateCardRequest	true	"Update Card Request"
+//	@Success		200					{object}	response.UpdateCardResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) UpdateCard(c *gin.Context) {
+	var (
+		req request.UpdateCardRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	cardID := req.CardID.Hex()
+	card, err := h.cardUsecase.GetCardByID(&cardID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if card.UserID.Hex() != uID {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Not your card! Can't update! Logged in user != card's user"})
+		return
+	}
+
+	req.CardID = nil
+	card, err = h.cardUsecase.UpdateCard(&cardID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.UpdateCardResponse{
+		Success: true,
+		Card:    *card,
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// UpdateDeck	godoc
+// UpdateDeck	API
+//
+//	@Summary		Update Deck Details
+//	@Description	Update Deck Details
+//	@Tags			deck
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/deck/update [put]
+//	@Param			update_deck_request	body		request.UpdateDeckRequest	true	"Update Deck Request"
+//	@Success		200					{object}	response.UpdateDeckResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) UpdateDeck(c *gin.Context) {
+	var (
+		req request.UpdateDeckRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deckID := req.DeckID.Hex()
+	deck, err := h.deckUsecase.GetDeckByID(&deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if deck.UserID.Hex() != uID {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Not your deck! Can't update! Logged in user != deck's user"})
+		return
+	}
+
+	req.DeckID = nil
+	deck, err = h.deckUsecase.UpdateDeck(&deckID, &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.UpdateDeckResponse{
+		Success: true,
+		Deck:    *deck,
+	}
+	c.JSON(http.StatusOK, resp)
+}

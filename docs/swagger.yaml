@@ -31,6 +31,19 @@ definitions:
           type: string
         type: array
     type: object
+  entity.Deck:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_global:
+        type: boolean
+      name:
+        type: string
+      user_id:
+        type: string
+    type: object
   entity.DeckWithReviewCards:
     properties:
       cards:
@@ -48,7 +61,36 @@ definitions:
       user_id:
         type: string
     type: object
-  handler.CreateCardRequest:
+  entity.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      hashed_password:
+        type: string
+      id:
+        type: string
+      is_admin:
+        type: boolean
+      last_streak:
+        type: string
+      level:
+        type: integer
+      max_cards_review:
+        type: integer
+      max_new_cards_learn:
+        type: integer
+      name:
+        type: string
+      streak:
+        type: integer
+      xp:
+        type: integer
+      xp_to_level_up:
+        type: integer
+    type: object
+  request.CreateCardRequest:
     properties:
       answer:
         type: string
@@ -66,55 +108,115 @@ definitions:
     - question
     - wrong_answers
     type: object
-  handler.CreateCardResponse:
-    properties:
-      success:
-        type: boolean
-    type: object
-  handler.CreateDeckRequest:
+  request.CreateDeckRequest:
     properties:
       name:
         type: string
     required:
     - name
     type: object
-  handler.CreateDeckResponse:
-    properties:
-      success:
-        type: boolean
-    type: object
-  handler.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
-  handler.LoginResponse:
-    properties:
-      access_token:
-        type: string
-      refresh_token:
-        type: string
-    type: object
-  handler.RefreshTokenRequest:
+  request.RefreshTokenRequest:
     properties:
       refresh_token:
         type: string
     required:
     - refresh_token
     type: object
-  handler.RefreshTokenResponse:
+  request.UpdateCardRequest:
+    properties:
+      answer:
+        type: string
+      card_id:
+        type: string
+      deck_id:
+        type: string
+      question:
+        type: string
+      wrong_answers:
+        items:
+          type: string
+        type: array
+    required:
+    - card_id
+    type: object
+  request.UpdateDeckRequest:
+    properties:
+      deck_id:
+        type: string
+      is_global:
+        type: boolean
+      name:
+        type: string
+    required:
+    - deck_id
+    type: object
+  request.UpdateUserRequest:
+    properties:
+      hashed_password:
+        type: string
+      max_cards_review:
+        type: integer
+      max_new_cards_learn:
+        type: integer
+      name:
+        type: string
+    type: object
+  response.CreateCardResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  response.CreateDeckResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  response.LoginResponse:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
     type: object
-  handler.SignupResponse:
+  response.RefreshTokenResponse:
     properties:
       access_token:
         type: string
       refresh_token:
         type: string
+    type: object
+  response.SignupResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  response.UpdateCardResponse:
+    properties:
+      card:
+        $ref: '#/definitions/entity.Card'
+      success:
+        type: boolean
+    type: object
+  response.UpdateDeckResponse:
+    properties:
+      deck:
+        $ref: '#/definitions/entity.Deck'
+      success:
+        type: boolean
+    type: object
+  response.UpdateUserResponse:
+    properties:
+      success:
+        type: boolean
+      user:
+        $ref: '#/definitions/entity.User'
     type: object
 info:
   contact:
@@ -139,21 +241,49 @@ paths:
         name: create_card_request
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateCardRequest'
+          $ref: '#/definitions/request.CreateCardRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.CreateCardResponse'
+            $ref: '#/definitions/response.CreateCardResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Create New Card
+      tags:
+      - card
+  /api/card/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Card Details
+      parameters:
+      - description: Update Card Request
+        in: body
+        name: update_card_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCardRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateCardResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Card Details
       tags:
       - card
   /api/deck/create:
@@ -167,18 +297,18 @@ paths:
         name: create_deck_request
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateDeckRequest'
+          $ref: '#/definitions/request.CreateDeckRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.CreateDeckResponse'
+            $ref: '#/definitions/response.CreateDeckResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Create New Deck
@@ -199,10 +329,38 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get Deck With Review Cards Of Logged In User
+      tags:
+      - deck
+  /api/deck/update:
+    put:
+      consumes:
+      - application/json
+      description: Update Deck Details
+      parameters:
+      - description: Update Deck Request
+        in: body
+        name: update_deck_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateDeckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateDeckResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Deck Details
       tags:
       - deck
   /api/login:
@@ -225,23 +383,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.LoginResponse'
+            $ref: '#/definitions/response.LoginResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Log In
       tags:
       - user
@@ -256,22 +414,22 @@ paths:
         name: refresh_token_request
         required: true
         schema:
-          $ref: '#/definitions/handler.RefreshTokenRequest'
+          $ref: '#/definitions/request.RefreshTokenRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.RefreshTokenResponse'
+            $ref: '#/definitions/response.RefreshTokenResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Refresh Token
       tags:
       - user
@@ -299,20 +457,48 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.SignupResponse'
+            $ref: '#/definitions/response.SignupResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/response.ErrorResponse'
       summary: Sign Up
+      tags:
+      - user
+  /api/user/update:
+    put:
+      consumes:
+      - application/json
+      description: Update User Details
+      parameters:
+      - description: Update User Request
+        in: body
+        name: update_user_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateUserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update User Details
       tags:
       - user
 securityDefinitions:

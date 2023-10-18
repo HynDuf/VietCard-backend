@@ -49,7 +49,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateCardRequest"
+                            "$ref": "#/definitions/request.CreateCardRequest"
                         }
                     }
                 ],
@@ -57,13 +57,58 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateCardResponse"
+                            "$ref": "#/definitions/response.CreateCardResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/card/update": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update Card Details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "card"
+                ],
+                "summary": "Update Card Details",
+                "parameters": [
+                    {
+                        "description": "Update Card Request",
+                        "name": "update_card_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateCardRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateCardResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -94,7 +139,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateDeckRequest"
+                            "$ref": "#/definitions/request.CreateDeckRequest"
                         }
                     }
                 ],
@@ -102,13 +147,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateDeckResponse"
+                            "$ref": "#/definitions/response.CreateDeckResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -142,7 +187,52 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deck/update": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update Deck Details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Update Deck Details",
+                "parameters": [
+                    {
+                        "description": "Update Deck Request",
+                        "name": "update_deck_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateDeckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateDeckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -179,31 +269,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.LoginResponse"
+                            "$ref": "#/definitions/response.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -229,7 +319,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.RefreshTokenRequest"
+                            "$ref": "#/definitions/request.RefreshTokenRequest"
                         }
                     }
                 ],
@@ -237,19 +327,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.RefreshTokenResponse"
+                            "$ref": "#/definitions/response.RefreshTokenResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -292,25 +382,70 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.SignupResponse"
+                            "$ref": "#/definitions/response.SignupResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/update": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update User Details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update User Details",
+                "parameters": [
+                    {
+                        "description": "Update User Request",
+                        "name": "update_user_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateUserResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -365,6 +500,26 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.Deck": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_global": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.DeckWithReviewCards": {
             "type": "object",
             "properties": {
@@ -391,7 +546,51 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateCardRequest": {
+        "entity.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "hashed_password": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_admin": {
+                    "type": "boolean"
+                },
+                "last_streak": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "integer"
+                },
+                "max_cards_review": {
+                    "type": "integer"
+                },
+                "max_new_cards_learn": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "streak": {
+                    "type": "integer"
+                },
+                "xp": {
+                    "type": "integer"
+                },
+                "xp_to_level_up": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CreateCardRequest": {
             "type": "object",
             "required": [
                 "answer",
@@ -417,15 +616,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateCardResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.CreateDeckRequest": {
+        "request.CreateDeckRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -436,34 +627,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.CreateDeckResponse": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.RefreshTokenRequest": {
+        "request.RefreshTokenRequest": {
             "type": "object",
             "required": [
                 "refresh_token"
@@ -474,7 +638,91 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.RefreshTokenResponse": {
+        "request.UpdateCardRequest": {
+            "type": "object",
+            "required": [
+                "card_id"
+            ],
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "card_id": {
+                    "type": "string"
+                },
+                "deck_id": {
+                    "type": "string"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "wrong_answers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "request.UpdateDeckRequest": {
+            "type": "object",
+            "required": [
+                "deck_id"
+            ],
+            "properties": {
+                "deck_id": {
+                    "type": "string"
+                },
+                "is_global": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "hashed_password": {
+                    "type": "string"
+                },
+                "max_cards_review": {
+                    "type": "integer"
+                },
+                "max_new_cards_learn": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CreateCardResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.CreateDeckResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.LoginResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -485,7 +733,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.SignupResponse": {
+        "response.RefreshTokenResponse": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -493,6 +741,50 @@ const docTemplate = `{
                 },
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "response.SignupResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UpdateCardResponse": {
+            "type": "object",
+            "properties": {
+                "card": {
+                    "$ref": "#/definitions/entity.Card"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.UpdateDeckResponse": {
+            "type": "object",
+            "properties": {
+                "deck": {
+                    "$ref": "#/definitions/entity.Deck"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.UpdateUserResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "$ref": "#/definitions/entity.User"
                 }
             }
         }
