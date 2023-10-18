@@ -1,0 +1,164 @@
+basePath: /
+definitions:
+  handler.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  handler.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  handler.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  handler.RefreshTokenResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  handler.SignupResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+info:
+  contact:
+    email: hynduf@gmail.com
+    name: API Support
+  description: Backend server for VietCard application
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: VietCard Backend API
+  version: "1.0"
+paths:
+  /api/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Log In
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Log In
+      tags:
+      - user
+  /api/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh Token
+      parameters:
+      - description: Refresh Token Request
+        in: body
+        name: refresh_token_request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.RefreshTokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Refresh Token
+      tags:
+      - user
+  /api/signup:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Sign Up
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: name
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.SignupResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Sign Up
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    description: Description for what is this security definition being used
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

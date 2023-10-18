@@ -9,13 +9,13 @@ import (
 )
 
 type JwtCustomClaims struct {
-	Name string `json:"name"`
-	ID   int    `json:"id"`
+	Name string `json:"user_name"`
+	ID   string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
 type JwtCustomRefreshClaims struct {
-	ID int `json:"id"`
+	ID string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -23,7 +23,7 @@ func CreateAccessToken(user *entity.User, secret *string, expireHours int) (acce
 	exp := time.Now().Add(time.Hour * time.Duration(expireHours))
 	claims := &JwtCustomClaims{
 		Name: user.Name,
-		ID:   user.ID,
+		ID:   user.ID.Hex(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
@@ -39,7 +39,7 @@ func CreateAccessToken(user *entity.User, secret *string, expireHours int) (acce
 func CreateRefreshToken(user *entity.User, secret *string, expireHours int) (refreshToken string, err error) {
 	exp := time.Now().Add(time.Hour * time.Duration(expireHours))
 	claimsRefresh := &JwtCustomRefreshClaims{
-		ID: user.ID,
+		ID: user.ID.Hex(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
@@ -83,5 +83,5 @@ func ExtractIDFromToken(requestToken *string, secret *string) (string, error) {
 		return "", fmt.Errorf("Invalid Token")
 	}
 
-	return claims["id"].(string), nil
+	return claims["user_id"].(string), nil
 }

@@ -11,12 +11,10 @@ type Env struct {
 	ServerAddress          string `mapstructure:"SERVER_ADDRESS"`
 	MongoDBURI             string `mapstructure:"MONGODB_URI"`
 	MongoDBName            string `mapstructure:"MONGODB_NAME"`
-	ContextTimeout         int    `mapstructure:"CONTEXT_TIMEOUT"`
 	AccessTokenExpiryHour  int    `mapstructure:"ACCESS_TOKEN_EXPIRY_HOUR"`
 	RefreshTokenExpiryHour int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
 	AccessTokenSecret      string `mapstructure:"ACCESS_TOKEN_SECRET"`
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
-	DBLogMode              int    `mapstructure:"DB_LOG_MODE"`
 }
 
 var E Env;
