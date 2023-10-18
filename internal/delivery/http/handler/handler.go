@@ -335,3 +335,30 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 
 	c.JSON(http.StatusOK, createDeckResponse)
 }
+
+// GetDeckWithReviewCards	godoc
+// GetDeckWithReviewCards	API
+//
+//	@Summary		Get Deck With Review Cards Of Logged In User
+//	@Description	Get Deck With Review Cards Of Logged In User
+//	@Tags			deck
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/deck/review-cards [get]
+//	@Success		200	{object}	[]entity.DeckWithReviewCards
+//	@Failure		500	{object}	ErrorResponse
+func (h *restHandler) GetDeckWithReviewCards(c *gin.Context) {
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+    deckWithCards, err := h.deckUsecase.GetReviewCardsAllDecksOfUser(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, deckWithCards)
+}

@@ -13,6 +13,7 @@ type RestHandler interface {
 	RefreshToken(c *gin.Context)
 	CreateCard(c *gin.Context)
 	CreateDeck(c *gin.Context)
+	GetDeckWithReviewCards(c *gin.Context)
 }
 
 func GetLoggedInUserID(c *gin.Context) (string, error) {

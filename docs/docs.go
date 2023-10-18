@@ -114,6 +114,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/deck/review-cards": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get Deck With Review Cards Of Logged In User",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Get Deck With Review Cards Of Logged In User",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entity.DeckWithReviewCards"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Log In",
@@ -284,6 +318,79 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "entity.Card": {
+            "type": "object",
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deck_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_review": {
+                    "type": "string"
+                },
+                "next_review": {
+                    "type": "string"
+                },
+                "num_reviews": {
+                    "type": "integer"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "sm2_ef": {
+                    "type": "number"
+                },
+                "sm2_i": {
+                    "type": "integer"
+                },
+                "sm2_n": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "wrong_answers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "entity.DeckWithReviewCards": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Card"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_global": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.CreateCardRequest": {
             "type": "object",
             "required": [

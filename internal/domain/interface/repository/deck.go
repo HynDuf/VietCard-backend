@@ -8,5 +8,5 @@ type DeckRepository interface {
 	CreateDeck(deck *entity.Deck) error
 	GetDeckByID(id *string) (*entity.Deck, error)
 	UpdateDeck(deck *entity.Deck) error
-	GetReviewCardsAllDecksOfUser(userID *string) (*entity.DeckWithReviewCards, error)
+	GetCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error)
 }

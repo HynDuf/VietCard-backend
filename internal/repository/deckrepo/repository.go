@@ -62,6 +62,38 @@ func (dr *deckRepository) UpdateDeck(deck *entity.Deck) error {
 	return nil
 }
 
-func (dr *deckRepository) GetReviewCardsAllDecksOfUser(userID *string) (*entity.DeckWithReviewCards, error) {
-	return nil, nil
+func (dr *deckRepository) GetCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error) {
+	// Requires the MongoDB Go Driver
+	// https://go.mongodb.org/mongo-driver
+	ctx := context.TODO()
+
+	uID, err := primitive.ObjectIDFromHex(*userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open an aggregation cursor
+	coll := dr.db.Collection(dr.colName)
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{{"$match", bson.D{{"user_id", uID}}}},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "cards"},
+					{"localField", "_id"},
+					{"foreignField", "deck_id"},
+					{"as", "cards"},
+				},
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+	var deckWithCards []entity.DeckWithReviewCards
+	if err = cursor.All(context.TODO(), &deckWithCards); err != nil {
+		return nil, err
+	}
+	return &deckWithCards, nil
 }

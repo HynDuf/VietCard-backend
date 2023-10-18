@@ -6,5 +6,5 @@ type DeckUsecase interface {
 	CreateDeck(deck *entity.Deck) error
 	GetDeckByID(id *string) (*entity.Deck, error)
 	UpdateDeck(deck *entity.Deck) error
-	GetReviewCardsAllDecksOfUser(userID *string) (*entity.DeckWithReviewCards, error)
+	GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error)
 }
