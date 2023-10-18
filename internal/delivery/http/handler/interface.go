@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -11,6 +13,15 @@ type RestHandler interface {
 	RefreshToken(c *gin.Context)
 	CreateCard(c *gin.Context)
 	CreateDeck(c *gin.Context)
+}
+
+func GetLoggedInUserID(c *gin.Context) (string, error) {
+	uID, isExisted := c.Get("x-user-id")
+	if !isExisted {
+		return "", errors.New("Missing x-user-id (set at middleware) in Gin Context")
+	}
+
+	return uID.(string), nil
 }
 
 type SuccessResponse struct {
@@ -52,7 +63,7 @@ type RefreshTokenResponse struct {
 }
 
 type CreateCardRequest struct {
-	UserID       primitive.ObjectID `json:"user_id" binding:"required"`
+	UserID       primitive.ObjectID `json:"user_id" swaggerignore:"true"`
 	DeckID       primitive.ObjectID `json:"deck_id" binding:"required"`
 	Question     string             `json:"question" binding:"required"`
 	Answer       string             `json:"answer" binding:"required"`
@@ -64,8 +75,8 @@ type CreateCardResponse struct {
 }
 
 type CreateDeckRequest struct {
-	UserID primitive.ObjectID `json:"user_id" bson:"user_id"`
-	Name   string             `json:"name" bson:"name"`
+	UserID primitive.ObjectID `json:"user_id" swaggerignore:"true"`
+	Name   string             `json:"name" binding:"required"`
 }
 
 type CreateDeckResponse struct {

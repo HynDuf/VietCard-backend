@@ -7,6 +7,7 @@ import (
 	"vietcard-backend/internal/domain/interface/usecase"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -223,20 +224,34 @@ func (h *restHandler) RefreshToken(c *gin.Context) {
 //	@Tags			card
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Router			/api/card/create [post]
 //	@Param			create_card_request	body		CreateCardRequest	true	"Create Card Request"
 //	@Success		200					{object}	CreateCardResponse
 //	@Failure		500					{object}	ErrorResponse
 func (h *restHandler) CreateCard(c *gin.Context) {
-	var req CreateCardRequest
+	var (
+		req CreateCardRequest
+		err error
+	)
 
-	err := c.ShouldBind(&req)
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+	req.UserID, err = primitive.ObjectIDFromHex(uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+	err = c.ShouldBind(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 	if len(req.WrongAnswers) < 3 {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Must be at least 3 wrong answers"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Must have at least 3 wrong answers"})
 		return
 	}
 
@@ -268,20 +283,34 @@ func (h *restHandler) CreateCard(c *gin.Context) {
 //	@Tags			deck
 //	@Accept			json
 //	@Produce		json
+//	@Security		ApiKeyAuth
 //	@Router			/api/deck/create [post]
 //	@Param			create_deck_request	body		CreateDeckRequest	true	"Create Deck Request"
 //	@Success		200					{object}	CreateDeckResponse
 //	@Failure		500					{object}	ErrorResponse
 func (h *restHandler) CreateDeck(c *gin.Context) {
-	var req CreateDeckRequest
+	var (
+		req CreateDeckRequest
+		err error
+	)
 
-	err := c.ShouldBind(&req)
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+	req.UserID, err = primitive.ObjectIDFromHex(uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	uID := req.UserID.Hex()
 	user, err := h.userUsecase.GetUserByID(&uID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Message: err.Error()})

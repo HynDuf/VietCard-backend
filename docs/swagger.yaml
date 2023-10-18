@@ -8,8 +8,6 @@ definitions:
         type: string
       question:
         type: string
-      user_id:
-        type: string
       wrong_answers:
         items:
           type: string
@@ -18,7 +16,6 @@ definitions:
     - answer
     - deck_id
     - question
-    - user_id
     - wrong_answers
     type: object
   handler.CreateCardResponse:
@@ -30,8 +27,8 @@ definitions:
     properties:
       name:
         type: string
-      user_id:
-        type: string
+    required:
+    - name
     type: object
   handler.CreateDeckResponse:
     properties:
@@ -106,6 +103,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create New Card
       tags:
       - card
@@ -132,6 +131,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create New Deck
       tags:
       - deck

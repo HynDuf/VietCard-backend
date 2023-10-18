@@ -18,6 +18,11 @@
     "paths": {
         "/api/card/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create New Card",
                 "consumes": [
                     "application/json"
@@ -58,6 +63,11 @@
         },
         "/api/deck/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create New Deck",
                 "consumes": [
                     "application/json"
@@ -272,7 +282,6 @@
                 "answer",
                 "deck_id",
                 "question",
-                "user_id",
                 "wrong_answers"
             ],
             "properties": {
@@ -283,9 +292,6 @@
                     "type": "string"
                 },
                 "question": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 },
                 "wrong_answers": {
@@ -306,11 +312,11 @@
         },
         "handler.CreateDeckRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
                 "name": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 }
             }

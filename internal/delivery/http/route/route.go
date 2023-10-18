@@ -36,10 +36,10 @@ import (
 
 //	@BasePath	/
 
-// @securityDefinitions.apikey	ApiKeyAuth
-// @in							header
-// @name						Authorization
-// @description				Description for what is this security definition being used
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Description for what is this security definition being used
 func Setup(db *mongo.Database, gin *gin.Engine) {
 	userRP := userrepo.NewUserRepository(db)
 	cardRP := cardrepo.NewCardRepository(db)
@@ -61,9 +61,9 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	publicRouter.POST("/api/signup", h.SignUp)
 	publicRouter.POST("/api/login", h.LogIn)
 	publicRouter.POST("/api/refresh", h.RefreshToken)
-	publicRouter.POST("/api/card/create", h.CreateCard)
-	publicRouter.POST("/api/deck/create", h.CreateDeck)
 
 	protectedRouter := gin.Group("")
 	protectedRouter.Use(middleware.JwtAuthMiddleware(bootstrap.E.AccessTokenSecret))
+    protectedRouter.POST("/api/card/create", h.CreateCard)
+    protectedRouter.POST("/api/deck/create", h.CreateDeck)
 }

@@ -26,6 +26,11 @@ const docTemplate = `{
     "paths": {
         "/api/card/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create New Card",
                 "consumes": [
                     "application/json"
@@ -66,6 +71,11 @@ const docTemplate = `{
         },
         "/api/deck/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create New Deck",
                 "consumes": [
                     "application/json"
@@ -280,7 +290,6 @@ const docTemplate = `{
                 "answer",
                 "deck_id",
                 "question",
-                "user_id",
                 "wrong_answers"
             ],
             "properties": {
@@ -291,9 +300,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "question": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 },
                 "wrong_answers": {
@@ -314,11 +320,11 @@ const docTemplate = `{
         },
         "handler.CreateDeckRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
                 "name": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 }
             }
