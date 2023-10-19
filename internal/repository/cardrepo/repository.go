@@ -57,6 +57,9 @@ func (cr *cardRepository) UpdateCardReview(card *entity.Card) error {
 			{Key: "sm2_n", Value: card.Sm2N},
 			{Key: "sm2_ef", Value: card.Sm2EF},
 			{Key: "sm2_i", Value: card.Sm2I},
+			{Key: "last_review", Value: card.LastReview},
+			{Key: "next_review", Value: card.NextReview},
+			{Key: "num_reviews", Value: card.NumReviews},
 		}}}
 	_, err := cr.db.Collection(cr.colName).UpdateOne(context.TODO(), &filter, &update)
 	if err != nil {
