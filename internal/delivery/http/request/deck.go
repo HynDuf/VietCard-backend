@@ -7,8 +7,9 @@ import (
 )
 
 type CreateDeckRequest struct {
-	UserID primitive.ObjectID `json:"user_id" swaggerignore:"true"`
-	Name   string             `json:"name" binding:"required"`
+	UserID      primitive.ObjectID `json:"user_id" swaggerignore:"true"`
+	Name        string             `json:"name" binding:"required"`
+	Description string             `json:"description"`
 }
 
 type UpdateDeckRequest struct {

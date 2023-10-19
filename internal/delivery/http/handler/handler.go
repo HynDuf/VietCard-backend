@@ -319,8 +319,9 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 		return
 	}
 	deck := &entity.Deck{
-		UserID: req.UserID,
-		Name:   req.Name,
+		UserID:      req.UserID,
+		Name:        req.Name,
+		Description: req.Description,
 	}
 	if user.IsAdmin {
 		deck.IsGlobal = true

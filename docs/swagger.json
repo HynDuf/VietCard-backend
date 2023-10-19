@@ -573,6 +573,9 @@
                 "cur_review_cards": {
                     "type": "integer"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -613,6 +616,9 @@
                 },
                 "cur_review_cards": {
                     "type": "integer"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -707,6 +713,9 @@
                 "name"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }

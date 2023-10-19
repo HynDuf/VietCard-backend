@@ -581,6 +581,9 @@ const docTemplate = `{
                 "cur_review_cards": {
                     "type": "integer"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -621,6 +624,9 @@ const docTemplate = `{
                 },
                 "cur_review_cards": {
                     "type": "integer"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -715,6 +721,9 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }

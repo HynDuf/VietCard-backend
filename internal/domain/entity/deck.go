@@ -13,6 +13,7 @@ type Deck struct {
 	UserID         primitive.ObjectID `json:"user_id" bson:"user_id"`
 	IsGlobal       bool               `json:"is_global" bson:"is_global"`
 	Name           string             `json:"name" bson:"name"`
+	Description    string             `json:"description" bson:"description"`
 	MaxNewCards    int                `json:"max_new_cards" bson:"max_new_cards"`
 	MaxReviewCards int                `json:"max_review_cards" bson:"max_review_cards"`
 	LastReview     time.Time          `json:"last_review" bson:"last_review"`
