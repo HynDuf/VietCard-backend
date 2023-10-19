@@ -18,8 +18,6 @@ type RefreshTokenRequest struct {
 type UpdateUserRequest struct {
 	Name             *string `json:"name" bson:"name,omitempty"`
 	HashedPassword   *string `json:"hashed_password" bson:"hashed_password,omitempty"`
-	MaxNewCardsLearn *int    `json:"max_new_cards_learn" bson:"max_new_cards_learn,omitempty"`
-	MaxCardsReview   *int    `json:"max_cards_review" bson:"max_cards_review,omitempty"`
 }
 
 type AddXPRequest struct {

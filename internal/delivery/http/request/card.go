@@ -17,3 +17,10 @@ type UpdateCardRequest struct {
 	Answer       *string             `json:"answer" bson:"answer,omitempty"`
 	WrongAnswers *[]string           `json:"wrong_answers" bson:"wrong_answers,omitempty"`
 }
+
+type UpdateReviewCardsRequest struct {
+	DeckID    primitive.ObjectID   `json:"deck_id" binding:"required"`
+	TotalXP   int                  `json:"total_xp" binding:"required"`
+	CardIDs   []primitive.ObjectID `json:"card_ids" binding:"required"`
+	IsCorrect []bool               `json:"is_correct" binding:"required"`
+}

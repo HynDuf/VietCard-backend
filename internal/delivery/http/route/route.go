@@ -49,7 +49,7 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	signUpUsecase := signup.NewSignupUsecase(userRP)
 	refreshTokenUsecase := refreshtkn.NewRefreshTokenUsecase(userRP)
 	userUsecase := user.NewUserUsecase(userRP)
-	cardUsecase := card.NewCardUsecase(cardRP)
+	cardUsecase := card.NewCardUsecase(cardRP, deckRP)
 	deckUsecase := deck.NewDeckUsecase(deckRP, userRP)
 
 	h := handler.NewHandler(loginUsecase, signUpUsecase, refreshTokenUsecase, cardUsecase, deckUsecase, userUsecase)
@@ -67,6 +67,7 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	protectedRouter.PUT("/api/user/update", h.UpdateUser)
 	protectedRouter.POST("/api/card/create", h.CreateCard)
 	protectedRouter.PUT("/api/card/update", h.UpdateCard)
+	protectedRouter.PUT("/api/card/review", h.UpdateReviewCards)
 	protectedRouter.POST("/api/deck/create", h.CreateDeck)
 	protectedRouter.PUT("/api/deck/update", h.UpdateDeck)
 	protectedRouter.GET("/api/deck/review-cards", h.GetDeckWithReviewCards)

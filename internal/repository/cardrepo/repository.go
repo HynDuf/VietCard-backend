@@ -80,3 +80,24 @@ func (cr *cardRepository) UpdateCard(cardID *string, req *request.UpdateCardRequ
 	}
 	return &updatedCard, nil
 }
+
+func (cr *cardRepository) GetCardsByDeck(deckID *string) (*[]entity.Card, error) {
+	dID, err := primitive.ObjectIDFromHex(*deckID)
+	if err != nil {
+		return nil, err
+	}
+	cursor, err := cr.db.Collection(cr.colName).Find(
+		context.TODO(),
+		bson.D{{Key: "deck_id", Value: dID}},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var cards []entity.Card
+	if err = cursor.All(context.TODO(), &cards); err != nil {
+		return nil, err
+	}
+
+	return &cards, nil
+}

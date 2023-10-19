@@ -23,8 +23,6 @@ type User struct {
 	Streak           int                `json:"streak" bson:"streak"`
 	LastStreak       time.Time          `json:"last_streak" bson:"last_streak"`
 	IsAdmin          bool               `json:"is_admin" bson:"is_admin"`
-	MaxNewCardsLearn int                `json:"max_new_cards_learn" bson:"max_new_cards_learn"`
-	MaxCardsReview   int                `json:"max_cards_review" bson:"max_cards_review"`
 }
 
 func (user *User) SetDefault() *User {
@@ -35,8 +33,6 @@ func (user *User) SetDefault() *User {
 	user.Streak = 1
 	user.LastStreak = user.CreatedAt
 	user.IsAdmin = false
-	user.MaxNewCardsLearn = 20
-	user.MaxCardsReview = 100
 	return user
 }
 

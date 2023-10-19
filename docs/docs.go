@@ -69,6 +69,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/card/review": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update Review Cards",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "card"
+                ],
+                "summary": "Update Review Cards",
+                "parameters": [
+                    {
+                        "description": "Update Review Cards Request",
+                        "name": "update_review_cards_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateReviewCardsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.UpdateReviewCardsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/card/update": {
             "put": {
                 "security": [
@@ -103,6 +154,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.UpdateCardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
@@ -227,6 +284,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.UpdateDeckResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
@@ -442,6 +505,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.UpdateUserResponse"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -506,11 +575,26 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "cur_new_cards": {
+                    "type": "integer"
+                },
+                "cur_review_cards": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
                 },
                 "is_global": {
                     "type": "boolean"
+                },
+                "last_review": {
+                    "type": "string"
+                },
+                "max_new_cards": {
+                    "type": "integer"
+                },
+                "max_review_cards": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -532,11 +616,26 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "cur_new_cards": {
+                    "type": "integer"
+                },
+                "cur_review_cards": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
                 },
                 "is_global": {
                     "type": "boolean"
+                },
+                "last_review": {
+                    "type": "string"
+                },
+                "max_new_cards": {
+                    "type": "integer"
+                },
+                "max_review_cards": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -568,12 +667,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "level": {
-                    "type": "integer"
-                },
-                "max_cards_review": {
-                    "type": "integer"
-                },
-                "max_new_cards_learn": {
                     "type": "integer"
                 },
                 "name": {
@@ -670,14 +763,58 @@ const docTemplate = `{
                 "deck_id"
             ],
             "properties": {
+                "cur_new_cards": {
+                    "type": "integer"
+                },
+                "cur_review_cards": {
+                    "type": "integer"
+                },
                 "deck_id": {
                     "type": "string"
                 },
                 "is_global": {
                     "type": "boolean"
                 },
+                "last_review": {
+                    "type": "string"
+                },
+                "max_new_cards": {
+                    "type": "integer"
+                },
+                "max_review_cards": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "request.UpdateReviewCardsRequest": {
+            "type": "object",
+            "required": [
+                "card_ids",
+                "deck_id",
+                "is_correct",
+                "total_xp"
+            ],
+            "properties": {
+                "card_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "deck_id": {
+                    "type": "string"
+                },
+                "is_correct": {
+                    "type": "array",
+                    "items": {
+                        "type": "boolean"
+                    }
+                },
+                "total_xp": {
+                    "type": "integer"
                 }
             }
         },
@@ -686,12 +823,6 @@ const docTemplate = `{
             "properties": {
                 "hashed_password": {
                     "type": "string"
-                },
-                "max_cards_review": {
-                    "type": "integer"
-                },
-                "max_new_cards_learn": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -771,6 +902,20 @@ const docTemplate = `{
             "properties": {
                 "deck": {
                     "$ref": "#/definitions/entity.Deck"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.UpdateReviewCardsResponse": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Card"
+                    }
                 },
                 "success": {
                     "type": "boolean"

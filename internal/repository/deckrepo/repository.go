@@ -89,6 +89,22 @@ func (dr *deckRepository) GetCardsAllDecksOfUser(userID *string) (*[]entity.Deck
 				},
 			},
 		},
+		bson.D{
+			{"$set",
+				bson.D{
+					{"cards",
+						bson.D{
+							{"$sortArray",
+								bson.D{
+									{"input", "$cards"},
+									{"sortBy", bson.D{{"created_at", 1}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	})
 	if err != nil {
 		return nil, err

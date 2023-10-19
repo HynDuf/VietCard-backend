@@ -1,12 +1,11 @@
 package deck
 
 import (
-	"time"
 	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
 	"vietcard-backend/internal/domain/interface/usecase"
-	"vietcard-backend/pkg/timeutil"
+	"vietcard-backend/pkg/helpers"
 )
 
 type deckUsecase struct {
@@ -38,40 +37,10 @@ func (uc *deckUsecase) GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.D
 	if err != nil {
 		return nil, err
 	}
-	user, err := uc.userRepository.GetByID(userID)
-	if err != nil {
-		return nil, err
-	}
-	numNewCards := 0
-	numRedCards := 0
-	numReviewCards := 0
-	curTime := timeutil.TruncateToDay(time.Now())
 	for i := range *rawDeckWithCards {
 		deck := (*rawDeckWithCards)[i]
-		var cards []entity.Card
-		for _, card := range deck.Cards {
-			reviewTime := timeutil.TruncateToDay(card.NextReview)
-			if reviewTime.After(curTime) {
-				continue
-			}
-			if card.NumReviews == 0 {
-				if numNewCards < user.MaxNewCardsLearn {
-					numNewCards++
-					cards = append(cards, card)
-				}
-			} else if card.Sm2N == 0 {
-				if numRedCards < user.MaxCardsReview {
-					numRedCards++
-					cards = append(cards, card)
-				}
-			} else {
-				if numReviewCards < user.MaxCardsReview {
-					numReviewCards++
-					cards = append(cards, card)
-				}
-			}
-		}
-		deck.Cards = cards
+		deck.UpdateReview()
+		deck.Cards = helpers.FilterReviewCards(deck.Cards, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
 		(*rawDeckWithCards)[i] = deck
 	}
 	return rawDeckWithCards, nil

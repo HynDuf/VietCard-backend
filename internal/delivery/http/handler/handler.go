@@ -377,6 +377,7 @@ func (h *restHandler) GetDeckWithReviewCards(c *gin.Context) {
 //	@Router			/api/user/update [put]
 //	@Param			update_user_request	body		request.UpdateUserRequest	true	"Update User Request"
 //	@Success		200					{object}	response.UpdateUserResponse
+//	@Failure		400					{object}	response.ErrorResponse
 //	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) UpdateUser(c *gin.Context) {
 	var (
@@ -433,6 +434,7 @@ func (h *restHandler) UpdateUser(c *gin.Context) {
 //	@Router			/api/card/update [put]
 //	@Param			update_card_request	body		request.UpdateCardRequest	true	"Update Card Request"
 //	@Success		200					{object}	response.UpdateCardResponse
+//	@Failure		400					{object}	response.ErrorResponse
 //	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) UpdateCard(c *gin.Context) {
 	var (
@@ -489,6 +491,7 @@ func (h *restHandler) UpdateCard(c *gin.Context) {
 //	@Router			/api/deck/update [put]
 //	@Param			update_deck_request	body		request.UpdateDeckRequest	true	"Update Deck Request"
 //	@Success		200					{object}	response.UpdateDeckResponse
+//	@Failure		400					{object}	response.ErrorResponse
 //	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) UpdateDeck(c *gin.Context) {
 	var (
@@ -529,6 +532,117 @@ func (h *restHandler) UpdateDeck(c *gin.Context) {
 	resp := response.UpdateDeckResponse{
 		Success: true,
 		Deck:    *deck,
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// UpdateReviewCards	godoc
+// UpdateReviewCards	API
+//
+//	@Summary		Update Review Cards
+//	@Description	Update Review Cards
+//	@Tags			card
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/card/review [put]
+//	@Param			update_review_cards_request	body		request.UpdateReviewCardsRequest	true	"Update Review Cards Request"
+//	@Success		200							{object}	response.UpdateReviewCardsResponse
+//	@Failure		400							{object}	response.ErrorResponse
+//	@Failure		500							{object}	response.ErrorResponse
+func (h *restHandler) UpdateReviewCards(c *gin.Context) {
+	var (
+		req request.UpdateReviewCardsRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deckID := req.DeckID.Hex()
+	deck, err := h.deckUsecase.GetDeckByID(&deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if deck.UserID.Hex() != uID {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Not your deck! Can't update! Logged in user != deck's user"})
+		return
+	}
+
+	if len(req.CardIDs) == 0 || len(req.CardIDs) != len(req.IsCorrect) {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Invalid card_ids[] or is_correct[] parameters"})
+		return
+	}
+
+	deck.UpdateReview()
+	cards, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	needUpdate := make(map[string]bool)
+	cardsMap := make(map[string]*entity.Card)
+	for _, card := range *cards {
+		cardsMap[card.ID.Hex()] = &card
+	}
+	for i, id := range req.CardIDs {
+		correct := req.IsCorrect[i]
+		c := cardsMap[id.Hex()]
+		c.UpdateScheduleSM2(correct)
+		needUpdate[id.Hex()] = true
+		if correct {
+			if c.NumReviews == 1 {
+				deck.CurNewCards++
+			} else {
+				deck.CurReviewCards++
+			}
+		}
+	}
+
+	for id, update := range needUpdate {
+		if update {
+			err := h.cardUsecase.UpdateCardReview(cardsMap[id])
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+				return
+			}
+		}
+	}
+
+	cards, err = h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	updateDeckReq := &request.UpdateDeckRequest{
+		LastReview:  &deck.LastReview,
+		CurNewCards: &deck.CurNewCards,
+		MaxNewCards: &deck.MaxNewCards,
+	}
+	deck, err = h.deckUsecase.UpdateDeck(&deckID, updateDeckReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	_, err = h.userUsecase.AddXPToUser(&uID, req.TotalXP)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.UpdateReviewCardsResponse{
+		Success: true,
+		Cards:   *cards,
 	}
 	c.JSON(http.StatusOK, resp)
 }

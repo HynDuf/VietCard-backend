@@ -35,10 +35,20 @@ definitions:
     properties:
       created_at:
         type: string
+      cur_new_cards:
+        type: integer
+      cur_review_cards:
+        type: integer
       id:
         type: string
       is_global:
         type: boolean
+      last_review:
+        type: string
+      max_new_cards:
+        type: integer
+      max_review_cards:
+        type: integer
       name:
         type: string
       user_id:
@@ -52,10 +62,20 @@ definitions:
         type: array
       created_at:
         type: string
+      cur_new_cards:
+        type: integer
+      cur_review_cards:
+        type: integer
       id:
         type: string
       is_global:
         type: boolean
+      last_review:
+        type: string
+      max_new_cards:
+        type: integer
+      max_review_cards:
+        type: integer
       name:
         type: string
       user_id:
@@ -76,10 +96,6 @@ definitions:
       last_streak:
         type: string
       level:
-        type: integer
-      max_cards_review:
-        type: integer
-      max_new_cards_learn:
         type: integer
       name:
         type: string
@@ -141,23 +157,49 @@ definitions:
     type: object
   request.UpdateDeckRequest:
     properties:
+      cur_new_cards:
+        type: integer
+      cur_review_cards:
+        type: integer
       deck_id:
         type: string
       is_global:
         type: boolean
+      last_review:
+        type: string
+      max_new_cards:
+        type: integer
+      max_review_cards:
+        type: integer
       name:
         type: string
     required:
     - deck_id
     type: object
+  request.UpdateReviewCardsRequest:
+    properties:
+      card_ids:
+        items:
+          type: string
+        type: array
+      deck_id:
+        type: string
+      is_correct:
+        items:
+          type: boolean
+        type: array
+      total_xp:
+        type: integer
+    required:
+    - card_ids
+    - deck_id
+    - is_correct
+    - total_xp
+    type: object
   request.UpdateUserRequest:
     properties:
       hashed_password:
         type: string
-      max_cards_review:
-        type: integer
-      max_new_cards_learn:
-        type: integer
       name:
         type: string
     type: object
@@ -211,6 +253,15 @@ definitions:
       success:
         type: boolean
     type: object
+  response.UpdateReviewCardsResponse:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/entity.Card'
+        type: array
+      success:
+        type: boolean
+    type: object
   response.UpdateUserResponse:
     properties:
       success:
@@ -258,6 +309,38 @@ paths:
       summary: Create New Card
       tags:
       - card
+  /api/card/review:
+    put:
+      consumes:
+      - application/json
+      description: Update Review Cards
+      parameters:
+      - description: Update Review Cards Request
+        in: body
+        name: update_review_cards_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateReviewCardsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UpdateReviewCardsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Review Cards
+      tags:
+      - card
   /api/card/update:
     put:
       consumes:
@@ -277,6 +360,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.UpdateCardResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -354,6 +441,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.UpdateDeckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -492,6 +583,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.UpdateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:

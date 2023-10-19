@@ -82,7 +82,7 @@ func (ur *userRepository) UpdateUserXP(user *entity.User) error {
 	update := bson.D{
 		{Key: "$set", Value: bson.D{
 			{Key: "xp", Value: user.XP},
-			{Key: "xp", Value: user.XPToLevelUp},
+			{Key: "xp_to_level_up", Value: user.XPToLevelUp},
 			{Key: "level", Value: user.Level},
 			{Key: "streak", Value: user.Streak},
 			{Key: "last_streak", Value: user.LastStreak},
