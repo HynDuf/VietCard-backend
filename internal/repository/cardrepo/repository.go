@@ -33,6 +33,21 @@ func (cr *cardRepository) CreateCard(card *entity.Card) error {
 	return nil
 }
 
+func (cr *cardRepository) CreateManyCards(cards *[]entity.Card) error {
+	for i := range *cards {
+		(*cards)[i].SetDefault()
+	}
+	newCards := make([]interface{}, len(*cards))
+	for i := range *cards {
+		newCards[i] = (*cards)[i]
+	}
+	_, err := cr.db.Collection(cr.colName).InsertMany(context.TODO(), newCards)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (cr *cardRepository) GetCardByID(id *string) (*entity.Card, error) {
 	oID, err := primitive.ObjectIDFromHex(*id)
 	if err != nil {

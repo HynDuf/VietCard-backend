@@ -24,3 +24,8 @@ type UpdateReviewCardsRequest struct {
 	CardIDs   []primitive.ObjectID `json:"card_ids" binding:"required"`
 	IsCorrect []bool               `json:"is_correct" binding:"required"`
 }
+
+type CopyCardToDeckRequest struct {
+	CardID *primitive.ObjectID `json:"card_id" binding:"required"`
+	DeckID *primitive.ObjectID `json:"deck_id" binding:"required"`
+}

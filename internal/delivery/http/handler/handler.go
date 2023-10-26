@@ -647,3 +647,104 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, resp)
 }
+
+// CopyDeck	godoc
+// CopyDeck	API
+//
+//	@Summary		Copy Deck
+//	@Description	Copy Deck
+//	@Tags			deck
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/deck/copy [post]
+//	@Param			copy_deck_request	body		request.CopyDeckRequest	true	"Copy Deck Request"
+//	@Success		200					{object}	response.CopyDeckResponse
+//	@Failure		400					{object}	response.ErrorResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) CopyDeck(c *gin.Context) {
+	var (
+		req request.CopyDeckRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deckID := req.DeckID.Hex()
+	deck, err := h.deckUsecase.GetDeckByID(&deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if !deck.IsGlobal && deck.UserID.Hex() != uID {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Can't copy private deck! Deck is not global and Logged in user != deck's user"})
+		return
+	}
+
+	err = h.deckUsecase.CopyDeck(&uID, &deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.CopyDeckResponse{
+		Success: true,
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// CopyCardToDeck	godoc
+// CopyCardToDeck	API
+//
+//	@Summary		Copy Card To Deck
+//	@Description	Copy Card To Deck
+//	@Tags			card
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/card/copy [post]
+//	@Param			copy_card_to_deck_request	body		request.CopyCardToDeckRequest	true	"Copy Card To Deck Request"
+//	@Success		200							{object}	response.CopyCardToDeckResponse
+//	@Failure		400							{object}	response.ErrorResponse
+//	@Failure		500							{object}	response.ErrorResponse
+func (h *restHandler) CopyCardToDeck(c *gin.Context) {
+	var (
+		req request.CopyCardToDeckRequest
+		err error
+	)
+
+	// uID, err := GetLoggedInUserID(c)
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+	// 	return
+	// }
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+    cardID := req.CardID.Hex()
+    deckID := req.DeckID.Hex()
+    err = h.cardUsecase.CopyCardToDeck(&cardID, &deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.CopyDeckResponse{
+		Success: true,
+	}
+	c.JSON(http.StatusOK, resp)
+}

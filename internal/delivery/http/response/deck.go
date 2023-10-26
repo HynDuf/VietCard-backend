@@ -10,3 +10,8 @@ type UpdateDeckResponse struct {
 	Success bool        `json:"success"`
 	Deck    entity.Deck `json:"deck"`
 }
+
+type CopyDeckResponse struct {
+	Success bool `json:"success"`
+}
+

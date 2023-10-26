@@ -17,6 +17,8 @@ type RestHandler interface {
     UpdateCard(c *gin.Context)
     UpdateDeck(c *gin.Context)
     UpdateReviewCards(c *gin.Context)
+    CopyDeck(c *gin.Context)
+    CopyCardToDeck(c *gin.Context)
 }
 
 func GetLoggedInUserID(c *gin.Context) (string, error) {

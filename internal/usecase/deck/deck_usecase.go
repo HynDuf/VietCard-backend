@@ -6,22 +6,30 @@ import (
 	"vietcard-backend/internal/domain/interface/repository"
 	"vietcard-backend/internal/domain/interface/usecase"
 	"vietcard-backend/pkg/helpers"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type deckUsecase struct {
 	deckRepository repository.DeckRepository
+	cardRepository repository.CardRepository
 	userRepository repository.UserRepository
 }
 
-func NewDeckUsecase(dr repository.DeckRepository, ur repository.UserRepository) usecase.DeckUsecase {
+func NewDeckUsecase(dr repository.DeckRepository, cr repository.CardRepository, ur repository.UserRepository) usecase.DeckUsecase {
 	return &deckUsecase{
 		deckRepository: dr,
+		cardRepository: cr,
 		userRepository: ur,
 	}
 }
 
 func (uc *deckUsecase) CreateDeck(deck *entity.Deck) error {
-	return uc.deckRepository.CreateDeck(deck)
+	_, err := uc.deckRepository.CreateDeck(deck)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (uc *deckUsecase) GetDeckByID(id *string) (*entity.Deck, error) {
@@ -44,4 +52,43 @@ func (uc *deckUsecase) GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.D
 		(*rawDeckWithCards)[i] = deck
 	}
 	return rawDeckWithCards, nil
+}
+
+func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) error {
+	user, err := uc.userRepository.GetByID(userID)
+	if err != nil {
+		return err
+	}
+	deck, err := uc.deckRepository.GetDeckByID(deckID)
+	if err != nil {
+		return err
+	}
+	cards, err := uc.cardRepository.GetCardsByDeck(deckID)
+	if err != nil {
+		return err
+	}
+	deck.ID = primitive.NilObjectID
+	deck.UserID = user.ID
+	if user.IsAdmin {
+		deck.IsGlobal = true
+	} else {
+		deck.IsGlobal = false
+	}
+	if err != nil {
+		return err
+	}
+	deck, err = uc.deckRepository.CreateDeck(deck)
+	if err != nil {
+		return err
+	}
+	for i := range *cards {
+		(*cards)[i].UserID = deck.UserID
+		(*cards)[i].DeckID = deck.ID
+		(*cards)[i].ID = primitive.NilObjectID
+	}
+	err = uc.cardRepository.CreateManyCards(cards)
+	if err != nil {
+		return err
+	}
+	return nil
 }

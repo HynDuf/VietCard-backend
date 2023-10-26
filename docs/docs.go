@@ -24,6 +24,57 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/card/copy": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Copy Card To Deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "card"
+                ],
+                "summary": "Copy Card To Deck",
+                "parameters": [
+                    {
+                        "description": "Copy Card To Deck Request",
+                        "name": "copy_card_to_deck_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CopyCardToDeckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CopyCardToDeckResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/card/create": {
             "post": {
                 "security": [
@@ -154,6 +205,57 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.UpdateCardResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deck/copy": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Copy Deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Copy Deck",
+                "parameters": [
+                    {
+                        "description": "Copy Deck Request",
+                        "name": "copy_deck_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CopyDeckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CopyDeckResponse"
                         }
                     },
                     "400": {
@@ -689,6 +791,32 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CopyCardToDeckRequest": {
+            "type": "object",
+            "required": [
+                "card_id",
+                "deck_id"
+            ],
+            "properties": {
+                "card_id": {
+                    "type": "string"
+                },
+                "deck_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.CopyDeckRequest": {
+            "type": "object",
+            "required": [
+                "deck_id"
+            ],
+            "properties": {
+                "deck_id": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateCardRequest": {
             "type": "object",
             "required": [
@@ -835,6 +963,22 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "response.CopyCardToDeckResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.CopyDeckResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
                 }
             }
         },

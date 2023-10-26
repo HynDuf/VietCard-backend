@@ -110,6 +110,23 @@ definitions:
       xp_to_level_up:
         type: integer
     type: object
+  request.CopyCardToDeckRequest:
+    properties:
+      card_id:
+        type: string
+      deck_id:
+        type: string
+    required:
+    - card_id
+    - deck_id
+    type: object
+  request.CopyDeckRequest:
+    properties:
+      deck_id:
+        type: string
+    required:
+    - deck_id
+    type: object
   request.CreateCardRequest:
     properties:
       answer:
@@ -209,6 +226,16 @@ definitions:
       name:
         type: string
     type: object
+  response.CopyCardToDeckResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  response.CopyDeckResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   response.CreateCardResponse:
     properties:
       success:
@@ -287,6 +314,38 @@ info:
   title: VietCard Backend API
   version: "1.0"
 paths:
+  /api/card/copy:
+    post:
+      consumes:
+      - application/json
+      description: Copy Card To Deck
+      parameters:
+      - description: Copy Card To Deck Request
+        in: body
+        name: copy_card_to_deck_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CopyCardToDeckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CopyCardToDeckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Copy Card To Deck
+      tags:
+      - card
   /api/card/create:
     post:
       consumes:
@@ -379,6 +438,38 @@ paths:
       summary: Update Card Details
       tags:
       - card
+  /api/deck/copy:
+    post:
+      consumes:
+      - application/json
+      description: Copy Deck
+      parameters:
+      - description: Copy Deck Request
+        in: body
+        name: copy_deck_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CopyDeckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CopyDeckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Copy Deck
+      tags:
+      - deck
   /api/deck/create:
     post:
       consumes:

@@ -6,6 +6,8 @@ import (
 	"vietcard-backend/internal/domain/interface/repository"
 	"vietcard-backend/internal/domain/interface/usecase"
 	"vietcard-backend/pkg/helpers"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type cardUsecase struct {
@@ -44,3 +46,22 @@ func (uc *cardUsecase) UpdateCard(cardID *string, req *request.UpdateCardRequest
 func (uc *cardUsecase) UpdateCardReview(card *entity.Card) error {
 	return uc.cardRepository.UpdateCardReview(card)
 }
+
+func (uc *cardUsecase) CopyCardToDeck(cardID *string, deckID *string) error {
+    card, err := uc.cardRepository.GetCardByID(cardID)
+    if err != nil {
+        return err
+    }
+    card.ID = primitive.NilObjectID
+    card.DeckID, err = primitive.ObjectIDFromHex(*deckID)
+    card.SetDefault()
+    if err != nil {
+        return err
+    }
+    err = uc.cardRepository.CreateCard(card)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+

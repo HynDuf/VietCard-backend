@@ -24,13 +24,14 @@ func NewDeckRepository(db *mongo.Database) repository.DeckRepository {
 	}
 }
 
-func (dr *deckRepository) CreateDeck(deck *entity.Deck) error {
+func (dr *deckRepository) CreateDeck(deck *entity.Deck) (*entity.Deck, error) {
 	deck.SetDefault()
-	_, err := dr.db.Collection(dr.colName).InsertOne(context.TODO(), deck)
-	if err != nil {
-		return err
-	}
-	return nil
+	result, err := dr.db.Collection(dr.colName).InsertOne(context.TODO(), deck)
+    if err != nil {
+        return nil, err
+    }
+    deck.ID = result.InsertedID.(primitive.ObjectID)
+	return deck, nil
 }
 
 func (dr *deckRepository) GetDeckByID(id *string) (*entity.Deck, error) {

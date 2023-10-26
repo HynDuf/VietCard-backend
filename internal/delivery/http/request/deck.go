@@ -22,3 +22,7 @@ type UpdateDeckRequest struct {
 	CurNewCards    *int                `json:"cur_new_cards" bson:"cur_new_cards,omitempty"`
 	CurReviewCards *int                `json:"cur_review_cards" bson:"cur_review_cards,omitempty"`
 }
+
+type CopyDeckRequest struct {
+	DeckID *primitive.ObjectID `json:"deck_id" binding:"required"`
+}
