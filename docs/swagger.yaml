@@ -18,6 +18,10 @@ definitions:
         type: integer
       question:
         type: string
+      question_img_label:
+        type: string
+      question_img_url:
+        type: string
       sm2_ef:
         type: number
       sm2_i:
@@ -159,6 +163,10 @@ definitions:
         type: string
       question:
         type: string
+      question_img_label:
+        type: string
+      question_img_url:
+        type: string
       wrong_answers:
         items:
           type: string
@@ -198,6 +206,10 @@ definitions:
       deck_id:
         type: string
       question:
+        type: string
+      question_img_label:
+        type: string
+      question_img_url:
         type: string
       wrong_answers:
         items:

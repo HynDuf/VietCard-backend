@@ -643,6 +643,12 @@
                 "question": {
                     "type": "string"
                 },
+                "question_img_label": {
+                    "type": "string"
+                },
+                "question_img_url": {
+                    "type": "string"
+                },
                 "sm2_ef": {
                     "type": "number"
                 },
@@ -863,6 +869,12 @@
                 "question": {
                     "type": "string"
                 },
+                "question_img_label": {
+                    "type": "string"
+                },
+                "question_img_url": {
+                    "type": "string"
+                },
                 "wrong_answers": {
                     "type": "array",
                     "items": {
@@ -918,6 +930,12 @@
                     "type": "string"
                 },
                 "question": {
+                    "type": "string"
+                },
+                "question_img_label": {
+                    "type": "string"
+                },
+                "question_img_url": {
                     "type": "string"
                 },
                 "wrong_answers": {

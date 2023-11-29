@@ -258,11 +258,13 @@ func (h *restHandler) CreateCard(c *gin.Context) {
 	}
 
 	card := &entity.Card{
-		UserID:       req.UserID,
-		DeckID:       req.DeckID,
-		Question:     req.Question,
-		Answer:       req.Answer,
-		WrongAnswers: req.WrongAnswers,
+		UserID:           req.UserID,
+		DeckID:           req.DeckID,
+		QuestionImgURL:   req.QuestionImgURL,
+		QuestionImgLabel: req.QuestionImgLabel,
+		Question:         req.Question,
+		Answer:           req.Answer,
+		WrongAnswers:     req.WrongAnswers,
 	}
 	err = h.cardUsecase.CreateCard(card)
 	if err != nil {
@@ -318,10 +320,10 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
-    if user == nil {
+	if user == nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: "User ID doesn't exist in DB"})
 		return
-    }
+	}
 	deck := &entity.Deck{
 		UserID:              req.UserID,
 		Name:                req.Name,

@@ -651,6 +651,12 @@ const docTemplate = `{
                 "question": {
                     "type": "string"
                 },
+                "question_img_label": {
+                    "type": "string"
+                },
+                "question_img_url": {
+                    "type": "string"
+                },
                 "sm2_ef": {
                     "type": "number"
                 },
@@ -871,6 +877,12 @@ const docTemplate = `{
                 "question": {
                     "type": "string"
                 },
+                "question_img_label": {
+                    "type": "string"
+                },
+                "question_img_url": {
+                    "type": "string"
+                },
                 "wrong_answers": {
                     "type": "array",
                     "items": {
@@ -926,6 +938,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "question": {
+                    "type": "string"
+                },
+                "question_img_label": {
+                    "type": "string"
+                },
+                "question_img_url": {
                     "type": "string"
                 },
                 "wrong_answers": {
