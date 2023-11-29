@@ -318,6 +318,10 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
+    if user == nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: "User ID doesn't exist in DB"})
+		return
+    }
 	deck := &entity.Deck{
 		UserID:              req.UserID,
 		Name:                req.Name,
