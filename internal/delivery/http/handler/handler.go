@@ -188,13 +188,13 @@ func (h *restHandler) RefreshToken(c *gin.Context) {
 
 	id, err := h.refreshTokenUsecase.ExtractIDFromToken(&request.RefreshToken, &bootstrap.E.RefreshTokenSecret)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "User not found"})
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	user, err := h.userUsecase.GetUserByID(&id)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "User not found"})
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
@@ -319,12 +319,14 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 		return
 	}
 	deck := &entity.Deck{
-		UserID:      req.UserID,
-		Name:        req.Name,
-		Description: req.Description,
+		UserID:              req.UserID,
+		Name:                req.Name,
+		Description:         req.Description,
+		DescriptionImageURL: req.DescriptionImageURL,
+		TotalCards:          req.TotalCards,
 	}
 	if user.IsAdmin {
-		deck.IsGlobal = true
+		deck.IsPublic = true
 	}
 	err = h.deckUsecase.CreateDeck(deck)
 	if err != nil {
@@ -686,7 +688,7 @@ func (h *restHandler) CopyDeck(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
-	if !deck.IsGlobal && deck.UserID.Hex() != uID {
+	if !deck.IsPublic && deck.UserID.Hex() != uID {
 		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Can't copy private deck! Deck is not global and Logged in user != deck's user"})
 		return
 	}
@@ -735,9 +737,9 @@ func (h *restHandler) CopyCardToDeck(c *gin.Context) {
 		return
 	}
 
-    cardID := req.CardID.Hex()
-    deckID := req.DeckID.Hex()
-    err = h.cardUsecase.CopyCardToDeck(&cardID, &deckID)
+	cardID := req.CardID.Hex()
+	deckID := req.DeckID.Hex()
+	err = h.cardUsecase.CopyCardToDeck(&cardID, &deckID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return

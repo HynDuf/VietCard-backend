@@ -686,10 +686,16 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "description_img_url": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "is_global": {
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "is_public": {
                     "type": "boolean"
                 },
                 "last_review": {
@@ -704,8 +710,20 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "rating": {
+                    "type": "number"
+                },
+                "total_cards": {
+                    "type": "integer"
+                },
+                "total_learned_cards": {
+                    "type": "integer"
+                },
                 "user_id": {
                     "type": "string"
+                },
+                "views": {
+                    "type": "integer"
                 }
             }
         },
@@ -730,10 +748,16 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "description_img_url": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "is_global": {
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "is_public": {
                     "type": "boolean"
                 },
                 "last_review": {
@@ -748,8 +772,20 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "rating": {
+                    "type": "number"
+                },
+                "total_cards": {
+                    "type": "integer"
+                },
+                "total_learned_cards": {
+                    "type": "integer"
+                },
                 "user_id": {
                     "type": "string"
+                },
+                "views": {
+                    "type": "integer"
                 }
             }
         },
@@ -852,8 +888,14 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "description_img_url": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "total_cards": {
+                    "type": "integer"
                 }
             }
         },
@@ -909,7 +951,16 @@ const docTemplate = `{
                 "deck_id": {
                     "type": "string"
                 },
-                "is_global": {
+                "description": {
+                    "type": "string"
+                },
+                "description_img_url": {
+                    "type": "string"
+                },
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "is_public": {
                     "type": "boolean"
                 },
                 "last_review": {

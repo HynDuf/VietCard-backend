@@ -70,9 +70,9 @@ func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) error {
 	deck.ID = primitive.NilObjectID
 	deck.UserID = user.ID
 	if user.IsAdmin {
-		deck.IsGlobal = true
+		deck.IsPublic = true
 	} else {
-		deck.IsGlobal = false
+		deck.IsPublic = false
 	}
 	if err != nil {
 		return err
