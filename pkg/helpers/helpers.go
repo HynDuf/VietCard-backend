@@ -6,11 +6,11 @@ import (
 	"vietcard-backend/pkg/timeutil"
 )
 
-func FilterReviewCards(rawCards *[]entity.Card, maxNewCards int, maxReviewCards int) *[]entity.Card {
+func FilterReviewCards(rawCards *[]entity.Card, maxNewCards int, maxReviewCards int) (*[]entity.Card, int, int, int) {
 	curTime := timeutil.TruncateToDay(time.Now())
-	numNewCards := 0
+	numBlueCards := 0
 	numRedCards := 0
-	numReviewCards := 0
+	numGreenCards := 0
 	var cards []entity.Card
 	for _, card := range *rawCards {
 		reviewTime := timeutil.TruncateToDay(card.NextReview)
@@ -18,8 +18,8 @@ func FilterReviewCards(rawCards *[]entity.Card, maxNewCards int, maxReviewCards 
 			continue
 		}
 		if card.NumReviews == 0 {
-			if numNewCards < maxNewCards {
-				numNewCards++
+			if numBlueCards < maxNewCards {
+				numBlueCards++
 				cards = append(cards, card)
 			}
 		} else if card.Sm2N == 0 {
@@ -28,11 +28,11 @@ func FilterReviewCards(rawCards *[]entity.Card, maxNewCards int, maxReviewCards 
 				cards = append(cards, card)
 			}
 		} else {
-			if numReviewCards < maxReviewCards {
-				numReviewCards++
+			if numGreenCards < maxReviewCards {
+				numGreenCards++
 				cards = append(cards, card)
 			}
 		}
 	}
-    return &cards
+	return &cards, numBlueCards, numRedCards, numGreenCards
 }

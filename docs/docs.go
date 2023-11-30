@@ -464,6 +464,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/login-get-all": {
+            "post": {
+                "description": "Log In And Get All Data",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mobile"
+                ],
+                "summary": "Log In And Get All Data",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginGetAllDataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/refresh": {
             "post": {
                 "description": "Refresh Token",
@@ -733,6 +794,68 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.DeckWithCards": {
+            "type": "object",
+            "properties": {
+                "cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Card"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "cur_new_cards": {
+                    "type": "integer"
+                },
+                "cur_review_cards": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "description_img_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "is_public": {
+                    "type": "boolean"
+                },
+                "last_review": {
+                    "type": "string"
+                },
+                "max_new_cards": {
+                    "type": "integer"
+                },
+                "max_review_cards": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "total_cards": {
+                    "type": "integer"
+                },
+                "total_learned_cards": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "views": {
+                    "type": "integer"
+                }
+            }
+        },
         "entity.DeckWithReviewCards": {
             "type": "object",
             "properties": {
@@ -777,6 +900,15 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "num_blue_cards": {
+                    "type": "integer"
+                },
+                "num_green_cards": {
+                    "type": "integer"
+                },
+                "num_red_cards": {
+                    "type": "integer"
                 },
                 "rating": {
                     "type": "number"
@@ -1075,6 +1207,38 @@ const docTemplate = `{
                 }
             }
         },
+        "response.LoginGetAllDataResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "decks_review": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DeckWithReviewCards"
+                    }
+                },
+                "public_decks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DeckWithCards"
+                    }
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/entity.User"
+                },
+                "user_decks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DeckWithCards"
+                    }
+                }
+            }
+        },
         "response.LoginResponse": {
             "type": "object",
             "properties": {
@@ -1138,6 +1302,15 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.Card"
                     }
+                },
+                "num_blue_cards": {
+                    "type": "integer"
+                },
+                "num_green_cards": {
+                    "type": "integer"
+                },
+                "num_red_cards": {
+                    "type": "integer"
                 },
                 "success": {
                     "type": "boolean"

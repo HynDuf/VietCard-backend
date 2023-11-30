@@ -36,10 +36,10 @@ import (
 
 //	@BasePath	/
 
-//	@securityDefinitions.apikey	ApiKeyAuth
-//	@in							header
-//	@name						Authorization
-//	@description				Description for what is this security definition being used
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description				Description for what is this security definition being used
 func Setup(db *mongo.Database, gin *gin.Engine) {
 	userRP := userrepo.NewUserRepository(db)
 	cardRP := cardrepo.NewCardRepository(db)
@@ -60,6 +60,7 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	publicRouter.GET("/swagger/*any", swaggerHandler)
 	publicRouter.POST("/api/signup", h.SignUp)
 	publicRouter.POST("/api/login", h.LogIn)
+	publicRouter.POST("/api/login-get-all", h.LogInGetAllData)
 	publicRouter.POST("/api/refresh", h.RefreshToken)
 
 	protectedRouter := gin.Group("")

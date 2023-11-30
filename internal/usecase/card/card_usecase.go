@@ -30,13 +30,13 @@ func (uc *cardUsecase) GetCardByID(id *string) (*entity.Card, error) {
 	return uc.cardRepository.GetCardByID(id)
 }
 
-func (uc *cardUsecase) GetReviewCardsByDeck(deckID *string, maxNewCards int, maxReviewCards int) (*[]entity.Card, error) {
+func (uc *cardUsecase) GetReviewCardsByDeck(deckID *string, maxNewCards int, maxReviewCards int) (*[]entity.Card, int, int, int, error) {
 	cards, err := uc.cardRepository.GetCardsByDeck(deckID)
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, 0, err
 	}
-	cards = helpers.FilterReviewCards(cards, maxNewCards, maxReviewCards)
-	return cards, nil
+	cards, numBlue, numRed, numGreen := helpers.FilterReviewCards(cards, maxNewCards, maxReviewCards)
+	return cards, numBlue, numRed, numGreen, nil
 }
 
 func (uc *cardUsecase) UpdateCard(cardID *string, req *request.UpdateCardRequest) (*entity.Card, error) {
@@ -48,20 +48,19 @@ func (uc *cardUsecase) UpdateCardReview(card *entity.Card) error {
 }
 
 func (uc *cardUsecase) CopyCardToDeck(cardID *string, deckID *string) error {
-    card, err := uc.cardRepository.GetCardByID(cardID)
-    if err != nil {
-        return err
-    }
-    card.ID = primitive.NilObjectID
-    card.DeckID, err = primitive.ObjectIDFromHex(*deckID)
-    card.SetDefault()
-    if err != nil {
-        return err
-    }
-    err = uc.cardRepository.CreateCard(card)
-    if err != nil {
-        return err
-    }
-    return nil
+	card, err := uc.cardRepository.GetCardByID(cardID)
+	if err != nil {
+		return err
+	}
+	card.ID = primitive.NilObjectID
+	card.DeckID, err = primitive.ObjectIDFromHex(*deckID)
+	card.SetDefault()
+	if err != nil {
+		return err
+	}
+	err = uc.cardRepository.CreateCard(card)
+	if err != nil {
+		return err
+	}
+	return nil
 }
-

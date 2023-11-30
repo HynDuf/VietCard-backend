@@ -72,6 +72,47 @@ definitions:
       views:
         type: integer
     type: object
+  entity.DeckWithCards:
+    properties:
+      cards:
+        items:
+          $ref: '#/definitions/entity.Card'
+        type: array
+      created_at:
+        type: string
+      cur_new_cards:
+        type: integer
+      cur_review_cards:
+        type: integer
+      description:
+        type: string
+      description_img_url:
+        type: string
+      id:
+        type: string
+      is_favorite:
+        type: boolean
+      is_public:
+        type: boolean
+      last_review:
+        type: string
+      max_new_cards:
+        type: integer
+      max_review_cards:
+        type: integer
+      name:
+        type: string
+      rating:
+        type: number
+      total_cards:
+        type: integer
+      total_learned_cards:
+        type: integer
+      user_id:
+        type: string
+      views:
+        type: integer
+    type: object
   entity.DeckWithReviewCards:
     properties:
       cards:
@@ -102,6 +143,12 @@ definitions:
         type: integer
       name:
         type: string
+      num_blue_cards:
+        type: integer
+      num_green_cards:
+        type: integer
+      num_red_cards:
+        type: integer
       rating:
         type: number
       total_cards:
@@ -297,6 +344,27 @@ definitions:
       error:
         type: string
     type: object
+  response.LoginGetAllDataResponse:
+    properties:
+      access_token:
+        type: string
+      decks_review:
+        items:
+          $ref: '#/definitions/entity.DeckWithReviewCards'
+        type: array
+      public_decks:
+        items:
+          $ref: '#/definitions/entity.DeckWithCards'
+        type: array
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/entity.User'
+      user_decks:
+        items:
+          $ref: '#/definitions/entity.DeckWithCards'
+        type: array
+    type: object
   response.LoginResponse:
     properties:
       access_token:
@@ -338,6 +406,12 @@ definitions:
         items:
           $ref: '#/definitions/entity.Card'
         type: array
+      num_blue_cards:
+        type: integer
+      num_green_cards:
+        type: integer
+      num_red_cards:
+        type: integer
       success:
         type: boolean
     type: object
@@ -637,6 +711,46 @@ paths:
       summary: Log In
       tags:
       - user
+  /api/login-get-all:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Log In And Get All Data
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.LoginGetAllDataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Log In And Get All Data
+      tags:
+      - mobile
   /api/refresh:
     post:
       consumes:

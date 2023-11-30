@@ -594,7 +594,7 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 	}
 
 	deck.UpdateReview()
-	cards, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+	cards, _, _, _, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
@@ -628,7 +628,7 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 		}
 	}
 
-	cards, err = h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+	cards, numBlueCards, numGreenCards, numRedCards, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
@@ -650,8 +650,11 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 	}
 
 	resp := response.UpdateReviewCardsResponse{
-		Success: true,
-		Cards:   *cards,
+		Success:       true,
+		Cards:         *cards,
+		NumBlueCards:  numBlueCards,
+		NumRedCards:   numRedCards,
+		NumGreenCards: numGreenCards,
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -755,4 +758,70 @@ func (h *restHandler) CopyCardToDeck(c *gin.Context) {
 		Success: true,
 	}
 	c.JSON(http.StatusOK, resp)
+}
+
+// LogInGetAllData	godoc
+// LogInGetAllData	API
+//
+//	@Summary		Log In And Get All Data
+//	@Description	Log In And Get All Data
+//	@Tags			mobile
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Router			/api/login-get-all [post]
+//	@Param			login_request	formData	request.LoginRequest	true	"Log In Request"
+//	@Success		200				{object}	response.LoginGetAllDataResponse
+//	@Failure		400				{object}	response.ErrorResponse
+//	@Failure		401				{object}	response.ErrorResponse
+//	@Failure		404				{object}	response.ErrorResponse
+//	@Failure		500				{object}	response.ErrorResponse
+func (h *restHandler) LogInGetAllData(c *gin.Context) {
+	var request request.LoginRequest
+
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user, err := h.userUsecase.GetUserByEmail(&request.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, response.ErrorResponse{Message: "User not found with the given email"})
+		return
+	}
+
+	if bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(request.Password)) != nil {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Invalid credentials"})
+		return
+	}
+
+	accessToken, err := h.loginUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	refreshToken, err := h.loginUsecase.CreateRefreshToken(user, &bootstrap.E.RefreshTokenSecret, bootstrap.E.RefreshTokenExpiryHour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	uID := user.ID.Hex()
+	userDecks, publicDecks, decksWithReviewCard, err := h.deckUsecase.GetDecksWithCards(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	loginResponse := response.LoginGetAllDataResponse{
+		AccessToken:          accessToken,
+		RefreshToken:         refreshToken,
+		User:                 *user,
+		UserDeckAndCards:     *userDecks,
+		PublicDeckAndCards:   *publicDecks,
+		DecksWithReviewCards: *decksWithReviewCard,
+	}
+
+	c.JSON(http.StatusOK, loginResponse)
 }

@@ -45,13 +45,21 @@ func (uc *deckUsecase) GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.D
 	if err != nil {
 		return nil, err
 	}
+	decksWithReviewCards := []entity.DeckWithReviewCards{}
 	for i := range *rawDeckWithCards {
-		deck := (*rawDeckWithCards)[i]
+		rawDeck := (*rawDeckWithCards)[i]
+		deck := entity.DeckWithReviewCards{
+			Deck:          rawDeck.Deck, // Copy fields from the embedded Deck
+			Cards:         rawDeck.Cards,
+			NumBlueCards:  0, // Set the initial values for NumBlueCards, NumRedCards, NumGreenCards
+			NumRedCards:   0,
+			NumGreenCards: 0,
+		}
 		deck.UpdateReview()
-		deck.Cards = helpers.FilterReviewCards(deck.Cards, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
-		(*rawDeckWithCards)[i] = deck
+		deck.Cards, deck.NumBlueCards, deck.NumRedCards, deck.NumGreenCards = helpers.FilterReviewCards(deck.Cards, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+		decksWithReviewCards = append(decksWithReviewCards, deck)
 	}
-	return rawDeckWithCards, nil
+	return &decksWithReviewCards, nil
 }
 
 func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) error {
@@ -91,4 +99,35 @@ func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) error {
 		return err
 	}
 	return nil
+}
+
+func (uc *deckUsecase) GetDecksWithCards(userID *string) (*[]entity.DeckWithCards, *[]entity.DeckWithCards, *[]entity.DeckWithReviewCards, error) {
+	rawDeckWithCards, err := uc.deckRepository.GetCardsAllDecks(userID)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	userDecks := []entity.DeckWithCards{}
+	publicDecks := []entity.DeckWithCards{}
+	for _, deck := range *rawDeckWithCards {
+		if deck.IsPublic {
+			publicDecks = append(publicDecks, deck)
+		} else {
+			userDecks = append(userDecks, deck)
+		}
+	}
+	decksWithReviewCards := []entity.DeckWithReviewCards{}
+	for i := range userDecks {
+		rawDeck := userDecks[i]
+		deck := entity.DeckWithReviewCards{
+			Deck:          rawDeck.Deck, // Copy fields from the embedded Deck
+			Cards:         rawDeck.Cards,
+			NumBlueCards:  0, // Set the initial values for NumBlueCards, NumRedCards, NumGreenCards
+			NumRedCards:   0,
+			NumGreenCards: 0,
+		}
+		deck.UpdateReview()
+		deck.Cards, deck.NumBlueCards, deck.NumRedCards, deck.NumGreenCards = helpers.FilterReviewCards(deck.Cards, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+		decksWithReviewCards = append(decksWithReviewCards, deck)
+	}
+	return &userDecks, &publicDecks, &decksWithReviewCards, nil
 }

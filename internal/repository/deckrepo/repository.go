@@ -27,10 +27,10 @@ func NewDeckRepository(db *mongo.Database) repository.DeckRepository {
 func (dr *deckRepository) CreateDeck(deck *entity.Deck) (*entity.Deck, error) {
 	deck.SetDefault()
 	result, err := dr.db.Collection(dr.colName).InsertOne(context.TODO(), deck)
-    if err != nil {
-        return nil, err
-    }
-    deck.ID = result.InsertedID.(primitive.ObjectID)
+	if err != nil {
+		return nil, err
+	}
+	deck.ID = result.InsertedID.(primitive.ObjectID)
 	return deck, nil
 }
 
@@ -66,7 +66,7 @@ func (dr *deckRepository) UpdateDeck(deckID *string, req *request.UpdateDeckRequ
 	return &updatedDeck, nil
 }
 
-func (dr *deckRepository) GetCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error) {
+func (dr *deckRepository) GetCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithCards, error) {
 	// Requires the MongoDB Go Driver
 	// https://go.mongodb.org/mongo-driver
 	ctx := context.TODO()
@@ -111,7 +111,70 @@ func (dr *deckRepository) GetCardsAllDecksOfUser(userID *string) (*[]entity.Deck
 		return nil, err
 	}
 	defer cursor.Close(context.TODO())
-	var deckWithCards []entity.DeckWithReviewCards
+	var deckWithCards []entity.DeckWithCards
+	if err = cursor.All(context.TODO(), &deckWithCards); err != nil {
+		return nil, err
+	}
+	return &deckWithCards, nil
+}
+
+func (dr *deckRepository) GetCardsAllDecks(userID *string) (*[]entity.DeckWithCards, error) {
+	// Requires the MongoDB Go Driver
+	// https://go.mongodb.org/mongo-driver
+	ctx := context.TODO()
+
+	uID, err := primitive.ObjectIDFromHex(*userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open an aggregation cursor
+	coll := dr.db.Collection(dr.colName)
+	cursor, err := coll.Aggregate(ctx, bson.A{
+		bson.D{
+			{"$match",
+				bson.D{
+					{"$or",
+						bson.A{
+							bson.D{{"user_id", uID}},
+							bson.D{{"is_public", true}},
+						},
+					},
+				},
+			},
+		},
+		bson.D{
+			{"$lookup",
+				bson.D{
+					{"from", "cards"},
+					{"localField", "_id"},
+					{"foreignField", "deck_id"},
+					{"as", "cards"},
+				},
+			},
+		},
+		bson.D{
+			{"$set",
+				bson.D{
+					{"cards",
+						bson.D{
+							{"$sortArray",
+								bson.D{
+									{"input", "$cards"},
+									{"sortBy", bson.D{{"created_at", 1}}},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+	var deckWithCards []entity.DeckWithCards
 	if err = cursor.All(context.TODO(), &deckWithCards); err != nil {
 		return nil, err
 	}

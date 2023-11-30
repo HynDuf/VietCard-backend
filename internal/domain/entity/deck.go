@@ -28,6 +28,14 @@ type Deck struct {
 }
 
 type DeckWithReviewCards struct {
+	Deck          `bson:"inline"`
+	Cards         *[]Card `json:"cards" bson:"cards"`
+	NumBlueCards  int     `json:"num_blue_cards" bson:"num_blue_cards"`
+	NumRedCards   int     `json:"num_red_cards" bson:"num_red_cards"`
+	NumGreenCards int     `json:"num_green_cards" bson:"num_green_cards"`
+}
+
+type DeckWithCards struct {
 	Deck  `bson:"inline"`
 	Cards *[]Card `json:"cards" bson:"cards"`
 }
@@ -36,10 +44,10 @@ func (deck *Deck) SetDefault() *Deck {
 	deck.CreatedAt = time.Now()
 	deck.MaxNewCards = 20
 	deck.MaxReviewCards = 100
-    deck.Rating = 5
-    deck.Views = 1
-    deck.TotalLearnedCards = 0
-    deck.IsFavorite = false
+	deck.Rating = 5
+	deck.Views = 1
+	deck.TotalLearnedCards = 0
+	deck.IsFavorite = false
 	return deck
 }
 
