@@ -825,3 +825,44 @@ func (h *restHandler) LogInGetAllData(c *gin.Context) {
 
 	c.JSON(http.StatusOK, loginResponse)
 }
+
+// GetAllData	godoc
+// GetAllData	API
+//
+//	@Summary		Get All Data
+//	@Description	Get All Data
+//	@Tags			mobile
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/get-all [get]
+//	@Success		200				{object}	response.GetAllDataResponse
+//	@Failure		500				{object}	response.ErrorResponse
+func (h *restHandler) GetAllData(c *gin.Context) {
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user, err := h.userUsecase.GetUserByID(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	userDecks, publicDecks, decksWithReviewCard, err := h.deckUsecase.GetDecksWithCards(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	loginResponse := response.GetAllDataResponse{
+		User:                 *user,
+		UserDeckAndCards:     *userDecks,
+		PublicDeckAndCards:   *publicDecks,
+		DecksWithReviewCards: *decksWithReviewCard,
+	}
+
+	c.JSON(http.StatusOK, loginResponse)
+}

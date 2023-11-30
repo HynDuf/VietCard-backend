@@ -344,6 +344,23 @@ definitions:
       error:
         type: string
     type: object
+  response.GetAllDataResponse:
+    properties:
+      decks_review:
+        items:
+          $ref: '#/definitions/entity.DeckWithReviewCards'
+        type: array
+      public_decks:
+        items:
+          $ref: '#/definitions/entity.DeckWithCards'
+        type: array
+      user:
+        $ref: '#/definitions/entity.User'
+      user_decks:
+        items:
+          $ref: '#/definitions/entity.DeckWithCards'
+        type: array
+    type: object
   response.LoginGetAllDataResponse:
     properties:
       access_token:
@@ -671,6 +688,27 @@ paths:
       summary: Update Deck Details
       tags:
       - deck
+  /api/get-all:
+    get:
+      consumes:
+      - multipart/form-data
+      description: Get All Data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GetAllDataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get All Data
+      tags:
+      - mobile
   /api/login:
     post:
       consumes:

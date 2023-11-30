@@ -403,6 +403,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/get-all": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get All Data",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mobile"
+                ],
+                "summary": "Get All Data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetAllDataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Log In",
@@ -1204,6 +1238,32 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "response.GetAllDataResponse": {
+            "type": "object",
+            "properties": {
+                "decks_review": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DeckWithReviewCards"
+                    }
+                },
+                "public_decks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DeckWithCards"
+                    }
+                },
+                "user": {
+                    "$ref": "#/definitions/entity.User"
+                },
+                "user_decks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.DeckWithCards"
+                    }
                 }
             }
         },
