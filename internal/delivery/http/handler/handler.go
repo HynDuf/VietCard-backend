@@ -83,7 +83,7 @@ func (h *restHandler) SignUp(c *gin.Context) {
 		HashedPassword: request.Password,
 	}
 
-	err = h.signUpUsecase.Create(user)
+	_, err = h.signUpUsecase.Create(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
@@ -905,4 +905,100 @@ func (h *restHandler) GetAllData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getAllResponse)
+}
+
+// SignUpGetAllData	godoc
+// SignUpGetAllData	API
+//
+//	@Summary		Sign Up And Get All Data
+//	@Description	Sign Up And Get All Data
+//	@Tags			mobile
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Router			/api/signup-get-all [post]
+//	@Param			signup_request	formData	request.SignupRequest	true	"Sign Up Request"
+//	@Success		200				{object}	response.LoginGetAllDataResponse
+//	@Failure		400				{object}	response.ErrorResponse
+//	@Failure		401				{object}	response.ErrorResponse
+//	@Failure		404				{object}	response.ErrorResponse
+//	@Failure		500				{object}	response.ErrorResponse
+func (h *restHandler) SignUpGetAllData(c *gin.Context) {
+	var request request.SignupRequest
+
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user, err := h.signUpUsecase.GetUserByEmail(&request.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if user != nil {
+		c.JSON(http.StatusConflict, response.ErrorResponse{Message: "User already exists with the given email"})
+		return
+	}
+
+	encryptedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(request.Password),
+		bcrypt.DefaultCost,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	request.Password = string(encryptedPassword)
+
+	user = &entity.User{
+		Name:           request.Name,
+		Email:          request.Email,
+		HashedPassword: request.Password,
+	}
+
+	uID, err := h.signUpUsecase.Create(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	accessToken, er := h.signUpUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
+	if er != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	refreshToken, err := h.signUpUsecase.CreateRefreshToken(user, &bootstrap.E.RefreshTokenSecret, bootstrap.E.RefreshTokenExpiryHour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	userDecks, publicDecks, decksWithReviewCard, err := h.deckUsecase.GetDecksWithCards(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	allCards := []entity.Card{}
+	for i := range *userDecks {
+		allCards = append(allCards, *(*userDecks)[i].Cards...)
+	}
+	for i := range *publicDecks {
+		allCards = append(allCards, *(*publicDecks)[i].Cards...)
+	}
+
+	signupResponse := response.SignUpGetAllDataResponse{
+		AccessToken:          accessToken,
+		RefreshToken:         refreshToken,
+		User:                 *user,
+		UserDeckAndCards:     *userDecks,
+		PublicDeckAndCards:   *publicDecks,
+		DecksWithReviewCards: *decksWithReviewCard,
+		AllCards:             allCards,
+	}
+
+	c.JSON(http.StatusOK, signupResponse)
 }

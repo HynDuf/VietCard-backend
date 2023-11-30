@@ -21,6 +21,7 @@ type RestHandler interface {
 	CopyCardToDeck(c *gin.Context)
 	LogInGetAllData(c *gin.Context)
 	GetAllData(c *gin.Context)
+	SignUpGetAllData(c *gin.Context)
 }
 
 func GetLoggedInUserID(c *gin.Context) (string, error) {

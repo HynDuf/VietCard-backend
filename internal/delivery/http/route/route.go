@@ -61,6 +61,7 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	publicRouter.POST("/api/signup", h.SignUp)
 	publicRouter.POST("/api/login", h.LogIn)
 	publicRouter.POST("/api/login-get-all", h.LogInGetAllData)
+	publicRouter.POST("/api/signup-get-all", h.SignUpGetAllData)
 	publicRouter.POST("/api/refresh", h.RefreshToken)
 	publicRouter.POST("/api/get-all", h.GetAllData)
 

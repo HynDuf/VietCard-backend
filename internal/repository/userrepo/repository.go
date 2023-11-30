@@ -2,6 +2,7 @@ package userrepo
 
 import (
 	"context"
+	"errors"
 	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
@@ -24,13 +25,19 @@ func NewUserRepository(db *mongo.Database) repository.UserRepository {
 	}
 }
 
-func (ur *userRepository) Create(user *entity.User) error {
+func (ur *userRepository) Create(user *entity.User) (string, error) {
 	user.SetDefault()
-	_, err := ur.db.Collection(ur.colName).InsertOne(context.TODO(), user)
+	result, err := ur.db.Collection(ur.colName).InsertOne(context.TODO(), user)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+
+	insertedID, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return "", errors.New("failed to get inserted ID")
+	}
+
+	return insertedID.Hex(), nil
 }
 
 func (ur *userRepository) GetByEmail(email *string) (*entity.User, error) {
