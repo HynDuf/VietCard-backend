@@ -404,15 +404,10 @@ const docTemplate = `{
             }
         },
         "/api/get-all": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
+            "post": {
                 "description": "Get All Data",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -421,6 +416,17 @@ const docTemplate = `{
                     "mobile"
                 ],
                 "summary": "Get All Data",
+                "parameters": [
+                    {
+                        "description": "Refresh Token Request",
+                        "name": "refresh_token_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RefreshTokenRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -725,6 +731,9 @@ const docTemplate = `{
                 "answer": {
                     "type": "string"
                 },
+                "card_type": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -872,6 +881,15 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "num_blue_cards": {
+                    "type": "integer"
+                },
+                "num_green_cards": {
+                    "type": "integer"
+                },
+                "num_red_cards": {
+                    "type": "integer"
                 },
                 "rating": {
                     "type": "number"
@@ -1244,6 +1262,15 @@ const docTemplate = `{
         "response.GetAllDataResponse": {
             "type": "object",
             "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "all_cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Card"
+                    }
+                },
                 "decks_review": {
                     "type": "array",
                     "items": {
@@ -1255,6 +1282,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.DeckWithCards"
                     }
+                },
+                "refresh_token": {
+                    "type": "string"
                 },
                 "user": {
                     "$ref": "#/definitions/entity.User"
@@ -1272,6 +1302,12 @@ const docTemplate = `{
             "properties": {
                 "access_token": {
                     "type": "string"
+                },
+                "all_cards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Card"
+                    }
                 },
                 "decks_review": {
                     "type": "array",

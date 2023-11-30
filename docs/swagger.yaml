@@ -4,6 +4,8 @@ definitions:
     properties:
       answer:
         type: string
+      card_type:
+        type: integer
       created_at:
         type: string
       deck_id:
@@ -102,6 +104,12 @@ definitions:
         type: integer
       name:
         type: string
+      num_blue_cards:
+        type: integer
+      num_green_cards:
+        type: integer
+      num_red_cards:
+        type: integer
       rating:
         type: number
       total_cards:
@@ -346,6 +354,12 @@ definitions:
     type: object
   response.GetAllDataResponse:
     properties:
+      access_token:
+        type: string
+      all_cards:
+        items:
+          $ref: '#/definitions/entity.Card'
+        type: array
       decks_review:
         items:
           $ref: '#/definitions/entity.DeckWithReviewCards'
@@ -354,6 +368,8 @@ definitions:
         items:
           $ref: '#/definitions/entity.DeckWithCards'
         type: array
+      refresh_token:
+        type: string
       user:
         $ref: '#/definitions/entity.User'
       user_decks:
@@ -365,6 +381,10 @@ definitions:
     properties:
       access_token:
         type: string
+      all_cards:
+        items:
+          $ref: '#/definitions/entity.Card'
+        type: array
       decks_review:
         items:
           $ref: '#/definitions/entity.DeckWithReviewCards'
@@ -689,10 +709,17 @@ paths:
       tags:
       - deck
   /api/get-all:
-    get:
+    post:
       consumes:
-      - multipart/form-data
+      - application/json
       description: Get All Data
+      parameters:
+      - description: Refresh Token Request
+        in: body
+        name: refresh_token_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RefreshTokenRequest'
       produces:
       - application/json
       responses:
@@ -704,8 +731,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Get All Data
       tags:
       - mobile

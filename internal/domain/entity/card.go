@@ -25,6 +25,7 @@ type Card struct {
 	Sm2N             int                `json:"sm2_n" bson:"sm2_n"`
 	Sm2EF            float64            `json:"sm2_ef" bson:"sm2_ef"`
 	Sm2I             int                `json:"sm2_i" bson:"sm2_i"`
+	CardType         int                `json:"card_type"`
 }
 
 func (card *Card) SetDefault() *Card {

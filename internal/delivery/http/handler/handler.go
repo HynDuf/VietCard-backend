@@ -814,6 +814,14 @@ func (h *restHandler) LogInGetAllData(c *gin.Context) {
 		return
 	}
 
+	allCards := []entity.Card{}
+	for i := range *userDecks {
+		allCards = append(allCards, *(*userDecks)[i].Cards...)
+	}
+	for i := range *publicDecks {
+		allCards = append(allCards, *(*publicDecks)[i].Cards...)
+	}
+
 	loginResponse := response.LoginGetAllDataResponse{
 		AccessToken:          accessToken,
 		RefreshToken:         refreshToken,
@@ -821,6 +829,7 @@ func (h *restHandler) LogInGetAllData(c *gin.Context) {
 		UserDeckAndCards:     *userDecks,
 		PublicDeckAndCards:   *publicDecks,
 		DecksWithReviewCards: *decksWithReviewCard,
+		AllCards:             allCards,
 	}
 
 	c.JSON(http.StatusOK, loginResponse)
@@ -832,20 +841,40 @@ func (h *restHandler) LogInGetAllData(c *gin.Context) {
 //	@Summary		Get All Data
 //	@Description	Get All Data
 //	@Tags			mobile
-//	@Accept			multipart/form-data
+//	@Accept			json
 //	@Produce		json
-//	@Security		ApiKeyAuth
-//	@Router			/api/get-all [get]
+//	@Router			/api/get-all [post]
+//	@Param			refresh_token_request	body		request.RefreshTokenRequest	true	"Refresh Token Request"
 //	@Success		200				{object}	response.GetAllDataResponse
 //	@Failure		500				{object}	response.ErrorResponse
 func (h *restHandler) GetAllData(c *gin.Context) {
-	uID, err := GetLoggedInUserID(c)
+	var request request.RefreshTokenRequest
+
+	err := c.ShouldBind(&request)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	uID, err := h.refreshTokenUsecase.ExtractIDFromToken(&request.RefreshToken, &bootstrap.E.RefreshTokenSecret)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	user, err := h.userUsecase.GetUserByID(&uID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
-	user, err := h.userUsecase.GetUserByID(&uID)
+	accessToken, err := h.loginUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	refreshToken, err := h.loginUsecase.CreateRefreshToken(user, &bootstrap.E.RefreshTokenSecret, bootstrap.E.RefreshTokenExpiryHour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
@@ -857,12 +886,23 @@ func (h *restHandler) GetAllData(c *gin.Context) {
 		return
 	}
 
-	loginResponse := response.GetAllDataResponse{
+	allCards := []entity.Card{}
+	for i := range *userDecks {
+		allCards = append(allCards, *(*userDecks)[i].Cards...)
+	}
+	for i := range *publicDecks {
+		allCards = append(allCards, *(*publicDecks)[i].Cards...)
+	}
+
+	getAllResponse := response.GetAllDataResponse{
+		AccessToken:          accessToken,
+		RefreshToken:         refreshToken,
 		User:                 *user,
 		UserDeckAndCards:     *userDecks,
 		PublicDeckAndCards:   *publicDecks,
 		DecksWithReviewCards: *decksWithReviewCard,
+		AllCards:             allCards,
 	}
 
-	c.JSON(http.StatusOK, loginResponse)
+	c.JSON(http.StatusOK, getAllResponse)
 }

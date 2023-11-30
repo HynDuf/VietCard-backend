@@ -128,6 +128,9 @@ func (uc *deckUsecase) GetDecksWithCards(userID *string) (*[]entity.DeckWithCard
 		deck.UpdateReview()
 		deck.Cards, deck.NumBlueCards, deck.NumRedCards, deck.NumGreenCards = helpers.FilterReviewCards(deck.Cards, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
 		decksWithReviewCards = append(decksWithReviewCards, deck)
+		userDecks[i].NumBlueCards = deck.NumBlueCards
+		userDecks[i].NumRedCards = deck.NumRedCards
+		userDecks[i].NumGreenCards = deck.NumGreenCards
 	}
 	return &userDecks, &publicDecks, &decksWithReviewCards, nil
 }

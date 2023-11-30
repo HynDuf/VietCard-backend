@@ -36,8 +36,11 @@ type DeckWithReviewCards struct {
 }
 
 type DeckWithCards struct {
-	Deck  `bson:"inline"`
-	Cards *[]Card `json:"cards" bson:"cards"`
+	Deck          `bson:"inline"`
+	Cards         *[]Card `json:"cards" bson:"cards"`
+	NumBlueCards  int     `json:"num_blue_cards" bson:"num_blue_cards"`
+	NumRedCards   int     `json:"num_red_cards" bson:"num_red_cards"`
+	NumGreenCards int     `json:"num_green_cards" bson:"num_green_cards"`
 }
 
 func (deck *Deck) SetDefault() *Deck {

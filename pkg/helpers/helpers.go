@@ -20,16 +20,19 @@ func FilterReviewCards(rawCards *[]entity.Card, maxNewCards int, maxReviewCards 
 		if card.NumReviews == 0 {
 			if numBlueCards < maxNewCards {
 				numBlueCards++
+				card.CardType = 0
 				cards = append(cards, card)
 			}
 		} else if card.Sm2N == 0 {
 			if numRedCards < maxReviewCards {
 				numRedCards++
+				card.CardType = 1
 				cards = append(cards, card)
 			}
 		} else {
 			if numGreenCards < maxReviewCards {
 				numGreenCards++
+				card.CardType = 2
 				cards = append(cards, card)
 			}
 		}
