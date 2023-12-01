@@ -331,9 +331,6 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 		DescriptionImageURL: req.DescriptionImageURL,
 		TotalCards:          req.TotalCards,
 	}
-	if user.IsAdmin {
-		deck.IsPublic = true
-	}
 	err = h.deckUsecase.CreateDeck(deck)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
@@ -672,6 +669,7 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 //	@Param			copy_deck_request	body		request.CopyDeckRequest	true	"Copy Deck Request"
 //	@Success		200					{object}	response.CopyDeckResponse
 //	@Failure		400					{object}	response.ErrorResponse
+//	@Failure		401					{object}	response.ErrorResponse
 //	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) CopyDeck(c *gin.Context) {
 	var (
@@ -698,18 +696,19 @@ func (h *restHandler) CopyDeck(c *gin.Context) {
 		return
 	}
 	if !deck.IsPublic && deck.UserID.Hex() != uID {
-		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Can't copy private deck! Deck is not global and Logged in user != deck's user"})
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Can't copy private deck! Deck is not public and Logged in user != deck's user"})
 		return
 	}
 
-	err = h.deckUsecase.CopyDeck(&uID, &deckID)
+	deckWithCards, deckWithReviewCards, err := h.deckUsecase.CopyDeck(&uID, &deckID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	resp := response.CopyDeckResponse{
-		Success: true,
+		Deck:       *deckWithCards,
+		DeckReview: *deckWithReviewCards,
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -754,7 +753,7 @@ func (h *restHandler) CopyCardToDeck(c *gin.Context) {
 		return
 	}
 
-	resp := response.CopyDeckResponse{
+	resp := response.CopyCardToDeckResponse{
 		Success: true,
 	}
 	c.JSON(http.StatusOK, resp)
@@ -1001,4 +1000,60 @@ func (h *restHandler) SignUpGetAllData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, signupResponse)
+}
+
+// DeleteDeck	godoc
+// DeleteDeck	API
+//
+//	@Summary		Delete Deck
+//	@Description	Delete Deck
+//	@Tags			deck
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/deck/delete [delete]
+//	@Param			delete_deck_request	body	request.DeleteDeckRequest	true	"Delete Deck Request"
+//	@Success		200				{object}	response.DeleteDeckResponse
+//	@Failure		400				{object}	response.ErrorResponse
+//	@Failure		500				{object}	response.ErrorResponse
+func (h *restHandler) DeleteDeck(c *gin.Context) {
+	var (
+		req request.DeleteDeckRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deckID := req.DeckID.Hex()
+	deck, err := h.deckUsecase.GetDeckByID(&deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if deck.UserID.Hex() != uID {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Not your deck! Can't update! Logged in user != deck's user"})
+		return
+	}
+
+	err = h.deckUsecase.DeleteDeck(&deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deleteDeckResponse := response.DeleteDeckResponse{
+		Success: true,
+	}
+
+	c.JSON(http.StatusOK, deleteDeckResponse)
 }

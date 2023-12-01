@@ -245,6 +245,13 @@ definitions:
     required:
     - name
     type: object
+  request.DeleteDeckRequest:
+    properties:
+      deck_id:
+        type: string
+    required:
+    - deck_id
+    type: object
   request.RefreshTokenRequest:
     properties:
       refresh_token:
@@ -334,8 +341,10 @@ definitions:
     type: object
   response.CopyDeckResponse:
     properties:
-      success:
-        type: boolean
+      deck:
+        $ref: '#/definitions/entity.DeckWithCards'
+      deck_review:
+        $ref: '#/definitions/entity.DeckWithReviewCards'
     type: object
   response.CreateCardResponse:
     properties:
@@ -343,6 +352,11 @@ definitions:
         type: boolean
     type: object
   response.CreateDeckResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  response.DeleteDeckResponse:
     properties:
       success:
         type: boolean
@@ -618,6 +632,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -653,6 +671,38 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Create New Deck
+      tags:
+      - deck
+  /api/deck/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Deck
+      parameters:
+      - description: Delete Deck Request
+        in: body
+        name: delete_deck_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteDeckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.DeleteDeckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Deck
       tags:
       - deck
   /api/deck/review-cards:

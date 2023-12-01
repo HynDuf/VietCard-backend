@@ -12,6 +12,10 @@ type UpdateDeckResponse struct {
 }
 
 type CopyDeckResponse struct {
-	Success bool `json:"success"`
+	Deck entity.DeckWithCards `json:"deck"`
+	DeckReview entity.DeckWithReviewCards `json:"deck_review"`
 }
 
+type DeleteDeckResponse struct {
+	Success bool `json:"success"`
+}

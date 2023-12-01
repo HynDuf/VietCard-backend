@@ -62,32 +62,28 @@ func (uc *deckUsecase) GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.D
 	return &decksWithReviewCards, nil
 }
 
-func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) error {
+func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) (*entity.DeckWithCards, *entity.DeckWithReviewCards, error) {
 	user, err := uc.userRepository.GetByID(userID)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	deck, err := uc.deckRepository.GetDeckByID(deckID)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	cards, err := uc.cardRepository.GetCardsByDeck(deckID)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	deck.ID = primitive.NilObjectID
 	deck.UserID = user.ID
-	if user.IsAdmin {
-		deck.IsPublic = true
-	} else {
-		deck.IsPublic = false
-	}
+	deck.IsPublic = false
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	deck, err = uc.deckRepository.CreateDeck(deck)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	for i := range *cards {
 		(*cards)[i].UserID = deck.UserID
@@ -96,9 +92,26 @@ func (uc *deckUsecase) CopyDeck(userID *string, deckID *string) error {
 	}
 	err = uc.cardRepository.CreateManyCards(cards)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
-	return nil
+	dID := deck.ID.Hex()
+	rawDeckWithCards, err := uc.deckRepository.GetDeckWithCards(&dID)
+	if err != nil {
+		return nil, nil, err
+	}
+	deckWithReviewCards := entity.DeckWithReviewCards{
+		Deck:          rawDeckWithCards.Deck,
+		Cards:         rawDeckWithCards.Cards,
+		NumBlueCards:  0,
+		NumRedCards:   0,
+		NumGreenCards: 0,
+	}
+	deckWithReviewCards.UpdateReview()
+	deckWithReviewCards.Cards, deckWithReviewCards.NumBlueCards, deckWithReviewCards.NumRedCards, deckWithReviewCards.NumGreenCards = helpers.FilterReviewCards(deckWithReviewCards.Cards, deckWithReviewCards.MaxNewCards-deckWithReviewCards.CurNewCards, deckWithReviewCards.MaxReviewCards-deckWithReviewCards.CurReviewCards)
+	rawDeckWithCards.NumBlueCards = deckWithReviewCards.NumBlueCards
+	rawDeckWithCards.NumRedCards = deckWithReviewCards.NumRedCards
+	rawDeckWithCards.NumGreenCards = deckWithReviewCards.NumGreenCards
+	return rawDeckWithCards, &deckWithReviewCards, nil
 }
 
 func (uc *deckUsecase) GetDecksWithCards(userID *string) (*[]entity.DeckWithCards, *[]entity.DeckWithCards, *[]entity.DeckWithReviewCards, error) {
@@ -133,4 +146,7 @@ func (uc *deckUsecase) GetDecksWithCards(userID *string) (*[]entity.DeckWithCard
 		userDecks[i].NumGreenCards = deck.NumGreenCards
 	}
 	return &userDecks, &publicDecks, &decksWithReviewCards, nil
+}
+func (uc *deckUsecase) DeleteDeck(deckID *string) error {
+	return uc.deckRepository.DeleteDeck(deckID)
 }

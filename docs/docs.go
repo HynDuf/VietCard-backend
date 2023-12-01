@@ -264,6 +264,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -307,6 +313,57 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.CreateDeckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deck/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete Deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Delete Deck",
+                "parameters": [
+                    {
+                        "description": "Delete Deck Request",
+                        "name": "delete_deck_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteDeckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.DeleteDeckResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
@@ -1162,6 +1219,17 @@ const docTemplate = `{
                 }
             }
         },
+        "request.DeleteDeckRequest": {
+            "type": "object",
+            "required": [
+                "deck_id"
+            ],
+            "properties": {
+                "deck_id": {
+                    "type": "string"
+                }
+            }
+        },
         "request.RefreshTokenRequest": {
             "type": "object",
             "required": [
@@ -1297,8 +1365,11 @@ const docTemplate = `{
         "response.CopyDeckResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
+                "deck": {
+                    "$ref": "#/definitions/entity.DeckWithCards"
+                },
+                "deck_review": {
+                    "$ref": "#/definitions/entity.DeckWithReviewCards"
                 }
             }
         },
@@ -1311,6 +1382,14 @@ const docTemplate = `{
             }
         },
         "response.CreateDeckResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.DeleteDeckResponse": {
             "type": "object",
             "properties": {
                 "success": {

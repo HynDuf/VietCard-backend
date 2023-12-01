@@ -22,6 +22,7 @@ type RestHandler interface {
 	LogInGetAllData(c *gin.Context)
 	GetAllData(c *gin.Context)
 	SignUpGetAllData(c *gin.Context)
+	DeleteDeck(c *gin.Context)
 }
 
 func GetLoggedInUserID(c *gin.Context) (string, error) {

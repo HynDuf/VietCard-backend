@@ -10,6 +10,7 @@ type DeckUsecase interface {
 	GetDeckByID(id *string) (*entity.Deck, error)
 	UpdateDeck(deckID *string, req *request.UpdateDeckRequest) (*entity.Deck, error)
 	GetReviewCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithReviewCards, error)
-	CopyDeck(userID *string, deckID *string) error
+	CopyDeck(userID *string, deckID *string) (*entity.DeckWithCards, *entity.DeckWithReviewCards, error)
 	GetDecksWithCards(userID *string) (*[]entity.DeckWithCards, *[]entity.DeckWithCards, *[]entity.DeckWithReviewCards, error)
+	DeleteDeck(deckID *string) error
 }

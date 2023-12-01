@@ -11,4 +11,6 @@ type DeckRepository interface {
 	UpdateDeck(deckID *string, req *request.UpdateDeckRequest) (*entity.Deck, error)
 	GetCardsAllDecksOfUser(userID *string) (*[]entity.DeckWithCards, error)
 	GetCardsAllDecks(userID *string) (*[]entity.DeckWithCards, error)
+    DeleteDeck(deckID *string) error
+    GetDeckWithCards(deckID *string) (*entity.DeckWithCards, error)
 }

@@ -31,3 +31,7 @@ type UpdateDeckRequest struct {
 type CopyDeckRequest struct {
 	DeckID *primitive.ObjectID `json:"deck_id" binding:"required"`
 }
+
+type DeleteDeckRequest struct {
+	DeckID *primitive.ObjectID `json:"deck_id" binding:"required"`
+}
