@@ -10,4 +10,5 @@ type UserUsecase interface {
 	GetUserByEmail(email *string) (*entity.User, error)
 	UpdateUser(userID *string, req *request.UpdateUserRequest) (*entity.User, error)
 	AddXPToUser(userID *string, XP int) (*entity.User, error)
+	CreateFact(*entity.Fact) error
 }

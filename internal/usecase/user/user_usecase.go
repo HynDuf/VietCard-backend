@@ -42,3 +42,7 @@ func (uu *userUsecase) AddXPToUser(userID *string, XP int) (*entity.User, error)
 	}
 	return user, nil
 }
+
+func (uu *userUsecase) CreateFact(fact *entity.Fact) error {
+	return uu.userRepository.CreateFact(fact)
+}

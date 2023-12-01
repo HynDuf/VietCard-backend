@@ -260,6 +260,7 @@ func (h *restHandler) CreateCard(c *gin.Context) {
 	card := &entity.Card{
 		UserID:           req.UserID,
 		DeckID:           req.DeckID,
+		Index:            req.Index,
 		QuestionImgURL:   req.QuestionImgURL,
 		QuestionImgLabel: req.QuestionImgLabel,
 		Question:         req.Question,
@@ -591,24 +592,29 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 	}
 
 	deck.UpdateReview()
-	cards, _, _, _, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+	cards, err := h.cardUsecase.GetCardsByDeck(&deckID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 	needUpdate := make(map[string]bool)
 	cardsMap := make(map[string]*entity.Card)
-	for _, card := range *cards {
-		cardsMap[card.ID.Hex()] = &card
+	for i := range *cards {
+		cardsMap[(*cards)[i].ID.Hex()] = &(*cards)[i]
 	}
 	for i, id := range req.CardIDs {
 		correct := req.IsCorrect[i]
-		c := cardsMap[id.Hex()]
-		c.UpdateScheduleSM2(correct)
+		card1, exists := cardsMap[id.Hex()]
+		if !exists {
+			c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: "Some card doesn't exist in given deck!"})
+			return
+		}
+		card1.UpdateScheduleSM2(correct)
 		needUpdate[id.Hex()] = true
 		if correct {
-			if c.NumReviews == 1 {
+			if card1.NumReviews == 1 {
 				deck.CurNewCards++
+				deck.TotalLearnedCards++
 			} else {
 				deck.CurReviewCards++
 			}
@@ -631,9 +637,10 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 		return
 	}
 	updateDeckReq := &request.UpdateDeckRequest{
-		LastReview:  &deck.LastReview,
-		CurNewCards: &deck.CurNewCards,
-		MaxNewCards: &deck.MaxNewCards,
+		LastReview:        &deck.LastReview,
+		CurNewCards:       &deck.CurNewCards,
+		MaxNewCards:       &deck.MaxNewCards,
+		TotalLearnedCards: &deck.TotalLearnedCards,
 	}
 	deck, err = h.deckUsecase.UpdateDeck(&deckID, updateDeckReq)
 	if err != nil {
@@ -1056,4 +1063,45 @@ func (h *restHandler) DeleteDeck(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, deleteDeckResponse)
+}
+
+// CreateFact	godoc
+// CreateFact	API
+//
+//	@Summary		Create New Fact
+//	@Description	Create New Fact
+//	@Tags			fact
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/fact/create [post]
+//	@Param			create_fact_request	body		request.CreateFactRequest	true	"Create Fact Request"
+//	@Success		200					{object}	response.CreateFactResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) CreateFact(c *gin.Context) {
+	var (
+		req request.CreateFactRequest
+		err error
+	)
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	fact := &entity.Fact{
+		Content: req.Content,
+	}
+	err = h.userUsecase.CreateFact(fact)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	createFactResponse := response.CreateFactResponse{
+		Success: true,
+	}
+
+	c.JSON(http.StatusOK, createFactResponse)
 }

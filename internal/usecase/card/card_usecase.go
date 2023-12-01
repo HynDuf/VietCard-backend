@@ -39,6 +39,14 @@ func (uc *cardUsecase) GetReviewCardsByDeck(deckID *string, maxNewCards int, max
 	return cards, numBlue, numRed, numGreen, nil
 }
 
+func (uc *cardUsecase) GetCardsByDeck(deckID *string) (*[]entity.Card, error) {
+	cards, err := uc.cardRepository.GetCardsByDeck(deckID)
+	if err != nil {
+		return nil, err
+	}
+	return cards, nil
+}
+
 func (uc *cardUsecase) UpdateCard(cardID *string, req *request.UpdateCardRequest) (*entity.Card, error) {
 	return uc.cardRepository.UpdateCard(cardID, req)
 }

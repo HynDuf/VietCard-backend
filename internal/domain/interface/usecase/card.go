@@ -12,4 +12,5 @@ type CardUsecase interface {
 	UpdateCard(cardID *string, req *request.UpdateCardRequest) (*entity.Card, error)
 	UpdateCardReview(card *entity.Card) error
 	CopyCardToDeck(cardID *string, deckID *string) error
+	GetCardsByDeck(deckID *string) (*[]entity.Card, error)
 }

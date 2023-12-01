@@ -101,3 +101,12 @@ func (ur *userRepository) UpdateUserXP(user *entity.User) error {
 	}
 	return nil
 }
+
+func (ur *userRepository) CreateFact(fact *entity.Fact) error {
+	_, err := ur.db.Collection("fun_facts").InsertOne(context.TODO(), *fact)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

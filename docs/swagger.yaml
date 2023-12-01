@@ -12,6 +12,8 @@ definitions:
         type: string
       id:
         type: string
+      index:
+        type: integer
       last_review:
         type: string
       next_review:
@@ -216,6 +218,8 @@ definitions:
         type: string
       deck_id:
         type: string
+      index:
+        type: integer
       question:
         type: string
       question_img_label:
@@ -229,6 +233,7 @@ definitions:
     required:
     - answer
     - deck_id
+    - index
     - question
     - wrong_answers
     type: object
@@ -244,6 +249,13 @@ definitions:
         type: integer
     required:
     - name
+    type: object
+  request.CreateFactRequest:
+    properties:
+      content:
+        type: string
+    required:
+    - content
     type: object
   request.DeleteDeckRequest:
     properties:
@@ -304,6 +316,8 @@ definitions:
         type: integer
       name:
         type: string
+      total_learned_cards:
+        type: integer
     required:
     - deck_id
     type: object
@@ -352,6 +366,11 @@ definitions:
         type: boolean
     type: object
   response.CreateDeckResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  response.CreateFactResponse:
     properties:
       success:
         type: boolean
@@ -758,6 +777,34 @@ paths:
       summary: Update Deck Details
       tags:
       - deck
+  /api/fact/create:
+    post:
+      consumes:
+      - application/json
+      description: Create New Fact
+      parameters:
+      - description: Create Fact Request
+        in: body
+        name: create_fact_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateFactRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CreateFactResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create New Fact
+      tags:
+      - fact
   /api/get-all:
     post:
       consumes:

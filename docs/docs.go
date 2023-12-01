@@ -460,6 +460,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/fact/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create New Fact",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fact"
+                ],
+                "summary": "Create New Fact",
+                "parameters": [
+                    {
+                        "description": "Create Fact Request",
+                        "name": "create_fact_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateFactRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CreateFactResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/get-all": {
             "post": {
                 "description": "Get All Data",
@@ -867,6 +912,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "index": {
+                    "type": "integer"
+                },
                 "last_review": {
                     "type": "string"
                 },
@@ -1172,6 +1220,7 @@ const docTemplate = `{
             "required": [
                 "answer",
                 "deck_id",
+                "index",
                 "question",
                 "wrong_answers"
             ],
@@ -1181,6 +1230,9 @@ const docTemplate = `{
                 },
                 "deck_id": {
                     "type": "string"
+                },
+                "index": {
+                    "type": "integer"
                 },
                 "question": {
                     "type": "string"
@@ -1216,6 +1268,17 @@ const docTemplate = `{
                 },
                 "total_cards": {
                     "type": "integer"
+                }
+            }
+        },
+        "request.CreateFactRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
                 }
             }
         },
@@ -1311,6 +1374,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "total_learned_cards": {
+                    "type": "integer"
                 }
             }
         },
@@ -1382,6 +1448,14 @@ const docTemplate = `{
             }
         },
         "response.CreateDeckResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.CreateFactResponse": {
             "type": "object",
             "properties": {
                 "success": {

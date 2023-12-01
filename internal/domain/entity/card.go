@@ -14,6 +14,7 @@ type Card struct {
 	CreatedAt        time.Time          `json:"created_at" bson:"created_at"`
 	UserID           primitive.ObjectID `json:"user_id" bson:"user_id"`
 	DeckID           primitive.ObjectID `json:"deck_id" bson:"deck_id"`
+	Index            int                `json:"index" bson:"index"`
 	Question         string             `json:"question" bson:"question"`
 	QuestionImgURL   string             `json:"question_img_url" bson:"question_img_url"`
 	QuestionImgLabel string             `json:"question_img_label" bson:"question_img_label"`

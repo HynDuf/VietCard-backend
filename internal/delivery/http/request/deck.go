@@ -21,6 +21,7 @@ type UpdateDeckRequest struct {
 	Name                *string             `json:"name" bson:"name,omitempty"`
 	Description         *string             `json:"description" bson:"description,omitempty"`
 	DescriptionImageURL *string             `json:"description_img_url" bson:"description_img_url,omitempty"`
+	TotalLearnedCards   *int                `json:"total_learned_cards" bson:"total_learned_cards,omitempty"`
 	MaxNewCards         *int                `json:"max_new_cards" bson:"max_new_cards,omitempty"`
 	MaxReviewCards      *int                `json:"max_review_cards" bson:"max_review_cards,omitempty"`
 	LastReview          *time.Time          `json:"last_review" bson:"last_review,omitempty"`

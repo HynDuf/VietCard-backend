@@ -77,4 +77,5 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	protectedRouter.DELETE("/api/deck/delete", h.DeleteDeck)
 	protectedRouter.GET("/api/deck/review-cards", h.GetDeckWithReviewCards)
 	protectedRouter.POST("/api/deck/copy", h.CopyDeck)
+	protectedRouter.POST("/api/fact/create", h.CreateFact)
 }
