@@ -64,6 +64,7 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	publicRouter.POST("/api/signup-get-all", h.SignUpGetAllData)
 	publicRouter.POST("/api/refresh", h.RefreshToken)
 	publicRouter.POST("/api/get-all", h.GetAllData)
+	publicRouter.PUT("/api/deck/view", h.UpdateViewDeck)
 
 	protectedRouter := gin.Group("")
 	protectedRouter.Use(middleware.JwtAuthMiddleware(bootstrap.E.AccessTokenSecret))
@@ -72,6 +73,7 @@ func Setup(db *mongo.Database, gin *gin.Engine) {
 	protectedRouter.PUT("/api/card/update", h.UpdateCard)
 	protectedRouter.PUT("/api/card/review", h.UpdateReviewCards)
 	protectedRouter.POST("/api/card/copy", h.CopyCardToDeck)
+	protectedRouter.DELETE("/api/card/delete", h.DeleteCard)
 	protectedRouter.POST("/api/deck/create", h.CreateDeck)
 	protectedRouter.PUT("/api/deck/update", h.UpdateDeck)
 	protectedRouter.DELETE("/api/deck/delete", h.DeleteDeck)

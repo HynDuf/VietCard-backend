@@ -22,7 +22,7 @@ func NewCardUsecase(cr repository.CardRepository, dr repository.DeckRepository) 
 	}
 }
 
-func (uc *cardUsecase) CreateCard(card *entity.Card) error {
+func (uc *cardUsecase) CreateCard(card *entity.Card) (*entity.Card, error) {
 	return uc.cardRepository.CreateCard(card)
 }
 
@@ -55,20 +55,24 @@ func (uc *cardUsecase) UpdateCardReview(card *entity.Card) error {
 	return uc.cardRepository.UpdateCardReview(card)
 }
 
-func (uc *cardUsecase) CopyCardToDeck(cardID *string, deckID *string) error {
+func (uc *cardUsecase) CopyCardToDeck(cardID *string, deckID *string) (*entity.Card, error) {
 	card, err := uc.cardRepository.GetCardByID(cardID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	card.ID = primitive.NilObjectID
 	card.DeckID, err = primitive.ObjectIDFromHex(*deckID)
 	card.SetDefault()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = uc.cardRepository.CreateCard(card)
+	card, err = uc.cardRepository.CreateCard(card)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return card, nil
+}
+
+func (uc *cardUsecase) DeleteCard(cardID *string) error {
+	return uc.cardRepository.DeleteCard(cardID)
 }

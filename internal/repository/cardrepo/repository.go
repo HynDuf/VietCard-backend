@@ -2,6 +2,7 @@ package cardrepo
 
 import (
 	"context"
+	"errors"
 	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
@@ -24,13 +25,21 @@ func NewCardRepository(db *mongo.Database) repository.CardRepository {
 	}
 }
 
-func (cr *cardRepository) CreateCard(card *entity.Card) error {
+func (cr *cardRepository) CreateCard(card *entity.Card) (*entity.Card, error) {
 	card.SetDefault()
-	_, err := cr.db.Collection(cr.colName).InsertOne(context.TODO(), card)
+	result, err := cr.db.Collection(cr.colName).InsertOne(context.TODO(), card)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	insertedID, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return nil, errors.New("failed to get inserted ID")
+	}
+
+	card.ID = insertedID
+
+	return card, nil
 }
 
 func (cr *cardRepository) CreateManyCards(cards *[]entity.Card) error {
@@ -118,4 +127,18 @@ func (cr *cardRepository) GetCardsByDeck(deckID *string) (*[]entity.Card, error)
 	}
 
 	return &cards, nil
+}
+
+func (cr *cardRepository) DeleteCard(cardID *string) error {
+	cID, err := primitive.ObjectIDFromHex(*cardID)
+	if err != nil {
+		return err
+	}
+	filter := bson.D{{Key: "_id", Value: cID}}
+	_, err = cr.db.Collection(cr.colName).DeleteOne(context.TODO(), filter)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

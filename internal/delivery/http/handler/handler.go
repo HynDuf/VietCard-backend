@@ -267,14 +267,14 @@ func (h *restHandler) CreateCard(c *gin.Context) {
 		Answer:           req.Answer,
 		WrongAnswers:     req.WrongAnswers,
 	}
-	err = h.cardUsecase.CreateCard(card)
+	card, err = h.cardUsecase.CreateCard(card)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	createCardResponse := response.CreateCardResponse{
-		Success: true,
+		Card: *card,
 	}
 
 	c.JSON(http.StatusOK, createCardResponse)
@@ -754,14 +754,14 @@ func (h *restHandler) CopyCardToDeck(c *gin.Context) {
 
 	cardID := req.CardID.Hex()
 	deckID := req.DeckID.Hex()
-	err = h.cardUsecase.CopyCardToDeck(&cardID, &deckID)
+	card, err := h.cardUsecase.CopyCardToDeck(&cardID, &deckID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	resp := response.CopyCardToDeckResponse{
-		Success: true,
+		Card: *card,
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -851,8 +851,8 @@ func (h *restHandler) LogInGetAllData(c *gin.Context) {
 //	@Produce		json
 //	@Router			/api/get-all [post]
 //	@Param			refresh_token_request	body		request.RefreshTokenRequest	true	"Refresh Token Request"
-//	@Success		200				{object}	response.GetAllDataResponse
-//	@Failure		500				{object}	response.ErrorResponse
+//	@Success		200						{object}	response.GetAllDataResponse
+//	@Failure		500						{object}	response.ErrorResponse
 func (h *restHandler) GetAllData(c *gin.Context) {
 	var request request.RefreshTokenRequest
 
@@ -1019,10 +1019,10 @@ func (h *restHandler) SignUpGetAllData(c *gin.Context) {
 //	@Produce		json
 //	@Security		ApiKeyAuth
 //	@Router			/api/deck/delete [delete]
-//	@Param			delete_deck_request	body	request.DeleteDeckRequest	true	"Delete Deck Request"
-//	@Success		200				{object}	response.DeleteDeckResponse
-//	@Failure		400				{object}	response.ErrorResponse
-//	@Failure		500				{object}	response.ErrorResponse
+//	@Param			delete_deck_request	body		request.DeleteDeckRequest	true	"Delete Deck Request"
+//	@Success		200					{object}	response.DeleteDeckResponse
+//	@Failure		400					{object}	response.ErrorResponse
+//	@Failure		500					{object}	response.ErrorResponse
 func (h *restHandler) DeleteDeck(c *gin.Context) {
 	var (
 		req request.DeleteDeckRequest
@@ -1104,4 +1104,109 @@ func (h *restHandler) CreateFact(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, createFactResponse)
+}
+
+// UpdateViewDeck	godoc
+// UpdateViewDeck	API
+//
+//	@Summary		Update View Deck
+//	@Description	Update View Deck
+//	@Tags			deck
+//	@Accept			json
+//	@Produce		json
+//	@Router			/api/deck/view [put]
+//	@Param			view_deck_request	body		request.UpdateViewDeckRequest	true	"View Deck Request"
+//	@Success		200					{object}	response.SuccessResponse
+//	@Failure		400					{object}	response.ErrorResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) UpdateViewDeck(c *gin.Context) {
+	var (
+		req  request.UpdateViewDeckRequest
+		req1 request.UpdateDeckRequest
+		err  error
+	)
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deckID := req.DeckID.Hex()
+
+	req1 = request.UpdateDeckRequest{
+		Views: req.Views,
+	}
+	_, err = h.deckUsecase.UpdateDeck(&deckID, &req1)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	resp := response.SuccessResponse{
+		Success: true,
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+// DeleteCard	godoc
+// DeleteCard	API
+//
+//	@Summary		Delete Card
+//	@Description	Delete Card
+//	@Tags			deck
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Router			/api/card/delete [delete]
+//	@Param			delete_card_request	body		request.DeleteCardRequest	true	"Delete Card Request"
+//	@Success		200					{object}	response.SuccessResponse
+//	@Failure		400					{object}	response.ErrorResponse
+//	@Failure		500					{object}	response.ErrorResponse
+func (h *restHandler) DeleteCard(c *gin.Context) {
+	var (
+		req request.DeleteCardRequest
+		err error
+	)
+
+	uID, err := GetLoggedInUserID(c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	cardID := req.CardID.Hex()
+	card, err := h.cardUsecase.GetCardByID(&cardID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	deckID := card.DeckID.Hex()
+	deck, err := h.deckUsecase.GetDeckByID(&deckID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	if deck.UserID.Hex() != uID {
+		c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Not your card! Can't update! Logged in user != card's user"})
+		return
+	}
+
+	err = h.cardUsecase.DeleteCard(&cardID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	deleteCardResponse := response.SuccessResponse{
+		Success: true,
+	}
+
+	c.JSON(http.StatusOK, deleteCardResponse)
 }

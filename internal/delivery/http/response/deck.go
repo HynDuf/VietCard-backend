@@ -19,3 +19,7 @@ type CopyDeckResponse struct {
 type DeleteDeckResponse struct {
 	Success bool `json:"success"`
 }
+
+type SuccessResponse struct {
+	Success bool        `json:"success"`
+}

@@ -3,7 +3,7 @@ package response
 import "vietcard-backend/internal/domain/entity"
 
 type CreateCardResponse struct {
-	Success bool `json:"success"`
+	Card entity.Card `json:"card"`
 }
 
 type UpdateCardResponse struct {
@@ -20,5 +20,5 @@ type UpdateReviewCardsResponse struct {
 }
 
 type CopyCardToDeckResponse struct {
-	Success bool `json:"success"`
+	Card entity.Card `json:"card"`
 }

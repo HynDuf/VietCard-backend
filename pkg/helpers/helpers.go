@@ -23,7 +23,7 @@ func FilterReviewCards(rawCards *[]entity.Card, maxNewCards int, maxReviewCards 
 				card.CardType = 0
 				cards = append(cards, card)
 			}
-		} else if card.Sm2N == 0 {
+		} else if card.Sm2N == 0 || card.NumReviews == 1 {
 			if numRedCards < maxReviewCards {
 				numRedCards++
 				card.CardType = 1

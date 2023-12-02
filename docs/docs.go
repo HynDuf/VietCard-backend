@@ -120,6 +120,57 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/card/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete Card",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Delete Card",
+                "parameters": [
+                    {
+                        "description": "Delete Card Request",
+                        "name": "delete_card_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteCardRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/card/review": {
             "put": {
                 "security": [
@@ -443,6 +494,52 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.UpdateDeckResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/deck/view": {
+            "put": {
+                "description": "Update View Deck",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deck"
+                ],
+                "summary": "Update View Deck",
+                "parameters": [
+                    {
+                        "description": "View Deck Request",
+                        "name": "view_deck_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateViewDeckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.SuccessResponse"
                         }
                     },
                     "400": {
@@ -1220,7 +1317,6 @@ const docTemplate = `{
             "required": [
                 "answer",
                 "deck_id",
-                "index",
                 "question",
                 "wrong_answers"
             ],
@@ -1278,6 +1374,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteCardRequest": {
+            "type": "object",
+            "required": [
+                "card_id"
+            ],
+            "properties": {
+                "card_id": {
                     "type": "string"
                 }
             }
@@ -1375,7 +1482,13 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "rating": {
+                    "type": "number"
+                },
                 "total_learned_cards": {
+                    "type": "integer"
+                },
+                "views": {
                     "type": "integer"
                 }
             }
@@ -1420,11 +1533,25 @@ const docTemplate = `{
                 }
             }
         },
+        "request.UpdateViewDeckRequest": {
+            "type": "object",
+            "required": [
+                "deck_id"
+            ],
+            "properties": {
+                "deck_id": {
+                    "type": "string"
+                },
+                "views": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.CopyCardToDeckResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
+                "card": {
+                    "$ref": "#/definitions/entity.Card"
                 }
             }
         },
@@ -1442,8 +1569,8 @@ const docTemplate = `{
         "response.CreateCardResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
+                "card": {
+                    "$ref": "#/definitions/entity.Card"
                 }
             }
         },
@@ -1585,6 +1712,14 @@ const docTemplate = `{
                 },
                 "refresh_token": {
                     "type": "string"
+                }
+            }
+        },
+        "response.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
                 }
             }
         },

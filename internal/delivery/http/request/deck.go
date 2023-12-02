@@ -27,6 +27,8 @@ type UpdateDeckRequest struct {
 	LastReview          *time.Time          `json:"last_review" bson:"last_review,omitempty"`
 	CurNewCards         *int                `json:"cur_new_cards" bson:"cur_new_cards,omitempty"`
 	CurReviewCards      *int                `json:"cur_review_cards" bson:"cur_review_cards,omitempty"`
+	Views               *int                `json:"views" bson:"views,omitempty"`
+	Rating              *float32            `json:"rating" bson:"rating,omitempty"`
 }
 
 type CopyDeckRequest struct {
@@ -35,4 +37,9 @@ type CopyDeckRequest struct {
 
 type DeleteDeckRequest struct {
 	DeckID *primitive.ObjectID `json:"deck_id" binding:"required"`
+}
+
+type UpdateViewDeckRequest struct {
+	DeckID *primitive.ObjectID `json:"deck_id" bson:"_id,omitempty" binding:"required"`
+	Views  *int                `json:"views" bson:"views,omitempty"`
 }

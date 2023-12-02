@@ -5,7 +5,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 type CreateCardRequest struct {
 	UserID           primitive.ObjectID `json:"user_id" swaggerignore:"true"`
 	DeckID           primitive.ObjectID `json:"deck_id" binding:"required"`
-	Index            int                `json:"index"  binding:"required"`
+	Index            int                `json:"index"`
 	QuestionImgURL   string             `json:"question_img_url"`
 	QuestionImgLabel string             `json:"question_img_label"`
 	Question         string             `json:"question" binding:"required"`
@@ -33,4 +33,8 @@ type UpdateReviewCardsRequest struct {
 type CopyCardToDeckRequest struct {
 	CardID *primitive.ObjectID `json:"card_id" binding:"required"`
 	DeckID *primitive.ObjectID `json:"deck_id" binding:"required"`
+}
+
+type DeleteCardRequest struct {
+	CardID *primitive.ObjectID `json:"card_id" binding:"required"`
 }

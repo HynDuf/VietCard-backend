@@ -233,7 +233,6 @@ definitions:
     required:
     - answer
     - deck_id
-    - index
     - question
     - wrong_answers
     type: object
@@ -256,6 +255,13 @@ definitions:
         type: string
     required:
     - content
+    type: object
+  request.DeleteCardRequest:
+    properties:
+      card_id:
+        type: string
+    required:
+    - card_id
     type: object
   request.DeleteDeckRequest:
     properties:
@@ -316,7 +322,11 @@ definitions:
         type: integer
       name:
         type: string
+      rating:
+        type: number
       total_learned_cards:
+        type: integer
+      views:
         type: integer
     required:
     - deck_id
@@ -348,10 +358,19 @@ definitions:
       name:
         type: string
     type: object
+  request.UpdateViewDeckRequest:
+    properties:
+      deck_id:
+        type: string
+      views:
+        type: integer
+    required:
+    - deck_id
+    type: object
   response.CopyCardToDeckResponse:
     properties:
-      success:
-        type: boolean
+      card:
+        $ref: '#/definitions/entity.Card'
     type: object
   response.CopyDeckResponse:
     properties:
@@ -362,8 +381,8 @@ definitions:
     type: object
   response.CreateCardResponse:
     properties:
-      success:
-        type: boolean
+      card:
+        $ref: '#/definitions/entity.Card'
     type: object
   response.CreateDeckResponse:
     properties:
@@ -455,6 +474,11 @@ definitions:
         type: string
       refresh_token:
         type: string
+    type: object
+  response.SuccessResponse:
+    properties:
+      success:
+        type: boolean
     type: object
   response.UpdateCardResponse:
     properties:
@@ -564,6 +588,38 @@ paths:
       summary: Create New Card
       tags:
       - card
+  /api/card/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Card
+      parameters:
+      - description: Delete Card Request
+        in: body
+        name: delete_card_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteCardRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Card
+      tags:
+      - deck
   /api/card/review:
     put:
       consumes:
@@ -775,6 +831,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Deck Details
+      tags:
+      - deck
+  /api/deck/view:
+    put:
+      consumes:
+      - application/json
+      description: Update View Deck
+      parameters:
+      - description: View Deck Request
+        in: body
+        name: view_deck_request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateViewDeckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update View Deck
       tags:
       - deck
   /api/fact/create:
