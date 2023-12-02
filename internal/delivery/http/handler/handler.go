@@ -330,16 +330,17 @@ func (h *restHandler) CreateDeck(c *gin.Context) {
 		Name:                req.Name,
 		Description:         req.Description,
 		DescriptionImageURL: req.DescriptionImageURL,
+		Position:            req.Position,
 		TotalCards:          req.TotalCards,
 	}
-	err = h.deckUsecase.CreateDeck(deck)
+	deck, err = h.deckUsecase.CreateDeck(deck)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
 
 	createDeckResponse := response.CreateDeckResponse{
-		Success: true,
+		Deck: *deck,
 	}
 
 	c.JSON(http.StatusOK, createDeckResponse)
@@ -403,9 +404,19 @@ func (h *restHandler) UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
 		return
 	}
-	if req.HashedPassword != nil {
+
+	if req.OldPassword != nil && req.NewPassword != nil {
+		user, err := h.userUsecase.GetUserByID(&uID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: err.Error()})
+			return
+		}
+		if bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(*req.OldPassword)) != nil {
+			c.JSON(http.StatusUnauthorized, response.ErrorResponse{Message: "Wrong old password! Couldn't update password!"})
+			return
+		}
 		encryptedPassword, err := bcrypt.GenerateFromPassword(
-			[]byte(*req.HashedPassword),
+			[]byte(*req.NewPassword),
 			bcrypt.DefaultCost,
 		)
 		if err != nil {
@@ -414,6 +425,8 @@ func (h *restHandler) UpdateUser(c *gin.Context) {
 		}
 		pass := string(encryptedPassword)
 		req.HashedPassword = &pass
+		req.OldPassword = nil
+		req.NewPassword = nil
 	}
 
 	user, err := h.userUsecase.UpdateUser(&uID, &req)
@@ -423,8 +436,7 @@ func (h *restHandler) UpdateUser(c *gin.Context) {
 	}
 
 	resp := response.UpdateUserResponse{
-		Success: true,
-		User:    *user,
+		User: *user,
 	}
 	c.JSON(http.StatusOK, resp)
 }
@@ -1154,7 +1166,7 @@ func (h *restHandler) UpdateViewDeck(c *gin.Context) {
 //
 //	@Summary		Delete Card
 //	@Description	Delete Card
-//	@Tags			deck
+//	@Tags			card
 //	@Accept			json
 //	@Produce		json
 //	@Security		ApiKeyAuth
@@ -1209,4 +1221,26 @@ func (h *restHandler) DeleteCard(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, deleteCardResponse)
+}
+
+// GetFact	godoc
+// GetFact	API
+//
+//	@Summary		Get Fact
+//	@Description	Get Fact
+//	@Tags			fact
+//	@Produce		json
+//	@Router			/api/fact [get]
+//	@Success		200	{object}	response.GetFactResponse
+//	@Failure		500	{object}	response.ErrorResponse
+func (h *restHandler) GetFact(c *gin.Context) {
+	fact, err := h.userUsecase.GetFact()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+	resp := response.GetFactResponse{
+		Fact: fact.Content,
+	}
+	c.JSON(http.StatusOK, resp)
 }

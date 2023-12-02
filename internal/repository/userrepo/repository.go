@@ -3,6 +3,7 @@ package userrepo
 import (
 	"context"
 	"errors"
+	"time"
 	"vietcard-backend/internal/delivery/http/request"
 	"vietcard-backend/internal/domain/entity"
 	"vietcard-backend/internal/domain/interface/repository"
@@ -109,4 +110,30 @@ func (ur *userRepository) CreateFact(fact *entity.Fact) error {
 	}
 
 	return nil
+}
+
+func (ur *userRepository) GetFact() (*entity.Fact, error) {
+	pipeline := bson.A{
+		bson.D{{"$sample", bson.D{{"size", 1}}}},
+	}
+
+	opts := options.Aggregate().SetMaxTime(2 * time.Second) // You can adjust the timeout as needed
+
+	cursor, err := ur.db.Collection("fun_facts").Aggregate(context.TODO(), pipeline, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	if !cursor.Next(context.TODO()) {
+		return nil, errors.New("no facts found")
+	}
+
+	var result entity.Fact
+	err = cursor.Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

@@ -22,6 +22,9 @@ type RefreshTokenResponse struct {
 }
 
 type UpdateUserResponse struct {
-	Success bool        `json:"success"`
 	User    entity.User `json:"user"`
+}
+
+type GetFactResponse struct {
+	Fact string `json:"fact"`
 }

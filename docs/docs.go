@@ -135,7 +135,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "deck"
+                    "card"
                 ],
                 "summary": "Delete Card",
                 "parameters": [
@@ -546,6 +546,32 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fact": {
+            "get": {
+                "description": "Get Fact",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fact"
+                ],
+                "summary": "Get Fact",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetFactResponse"
                         }
                     },
                     "500": {
@@ -1089,6 +1115,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -1160,6 +1189,9 @@ const docTemplate = `{
                 "num_red_cards": {
                     "type": "integer"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -1230,6 +1262,9 @@ const docTemplate = `{
                 },
                 "num_red_cards": {
                     "type": "integer"
+                },
+                "position": {
+                    "type": "string"
                 },
                 "rating": {
                     "type": "number"
@@ -1362,6 +1397,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "total_cards": {
                     "type": "integer"
                 }
@@ -1482,6 +1520,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -1525,10 +1566,13 @@ const docTemplate = `{
         "request.UpdateUserRequest": {
             "type": "object",
             "properties": {
-                "hashed_password": {
+                "name": {
                     "type": "string"
                 },
-                "name": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
                     "type": "string"
                 }
             }
@@ -1577,8 +1621,8 @@ const docTemplate = `{
         "response.CreateDeckResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
+                "deck": {
+                    "$ref": "#/definitions/entity.Deck"
                 }
             }
         },
@@ -1641,6 +1685,14 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/entity.DeckWithCards"
                     }
+                }
+            }
+        },
+        "response.GetFactResponse": {
+            "type": "object",
+            "properties": {
+                "fact": {
+                    "type": "string"
                 }
             }
         },
@@ -1771,9 +1823,6 @@ const docTemplate = `{
         "response.UpdateUserResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
-                },
                 "user": {
                     "$ref": "#/definitions/entity.User"
                 }

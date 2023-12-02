@@ -16,6 +16,7 @@ type Deck struct {
 	Name                string             `json:"name" bson:"name"`
 	Description         string             `json:"description" bson:"description"`
 	DescriptionImageURL string             `json:"description_img_url" bson:"description_img_url"`
+	Position            string             `json:"position" bson:"position"`
 	Views               int                `json:"views" bson:"views"`
 	Rating              float32            `json:"rating" bson:"rating"`
 	TotalCards          int                `json:"total_cards" bson:"total_cards"`

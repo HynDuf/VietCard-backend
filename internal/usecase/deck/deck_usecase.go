@@ -24,12 +24,12 @@ func NewDeckUsecase(dr repository.DeckRepository, cr repository.CardRepository, 
 	}
 }
 
-func (uc *deckUsecase) CreateDeck(deck *entity.Deck) error {
-	_, err := uc.deckRepository.CreateDeck(deck)
+func (uc *deckUsecase) CreateDeck(deck *entity.Deck) (*entity.Deck, error) {
+	deck, err := uc.deckRepository.CreateDeck(deck)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return deck, nil
 }
 
 func (uc *deckUsecase) GetDeckByID(id *string) (*entity.Deck, error) {

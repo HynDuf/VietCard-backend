@@ -127,7 +127,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "deck"
+                    "card"
                 ],
                 "summary": "Delete Card",
                 "parameters": [
@@ -538,6 +538,32 @@
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/fact": {
+            "get": {
+                "description": "Get Fact",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fact"
+                ],
+                "summary": "Get Fact",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetFactResponse"
                         }
                     },
                     "500": {
@@ -1081,6 +1107,9 @@
                 "name": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -1152,6 +1181,9 @@
                 "num_red_cards": {
                     "type": "integer"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -1222,6 +1254,9 @@
                 },
                 "num_red_cards": {
                     "type": "integer"
+                },
+                "position": {
+                    "type": "string"
                 },
                 "rating": {
                     "type": "number"
@@ -1354,6 +1389,9 @@
                 "name": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "total_cards": {
                     "type": "integer"
                 }
@@ -1474,6 +1512,9 @@
                 "name": {
                     "type": "string"
                 },
+                "position": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -1517,10 +1558,13 @@
         "request.UpdateUserRequest": {
             "type": "object",
             "properties": {
-                "hashed_password": {
+                "name": {
                     "type": "string"
                 },
-                "name": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
                     "type": "string"
                 }
             }
@@ -1569,8 +1613,8 @@
         "response.CreateDeckResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
+                "deck": {
+                    "$ref": "#/definitions/entity.Deck"
                 }
             }
         },
@@ -1633,6 +1677,14 @@
                     "items": {
                         "$ref": "#/definitions/entity.DeckWithCards"
                     }
+                }
+            }
+        },
+        "response.GetFactResponse": {
+            "type": "object",
+            "properties": {
+                "fact": {
+                    "type": "string"
                 }
             }
         },
@@ -1763,9 +1815,6 @@
         "response.UpdateUserResponse": {
             "type": "object",
             "properties": {
-                "success": {
-                    "type": "boolean"
-                },
                 "user": {
                     "$ref": "#/definitions/entity.User"
                 }

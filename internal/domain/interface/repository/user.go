@@ -12,4 +12,5 @@ type UserRepository interface {
 	UpdateUser(userID *string, req *request.UpdateUserRequest) (*entity.User, error)
 	UpdateUserXP(user *entity.User) error
 	CreateFact(*entity.Fact) error
+	GetFact() (*entity.Fact, error)
 }
