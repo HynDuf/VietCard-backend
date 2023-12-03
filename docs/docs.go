@@ -1815,8 +1815,8 @@ const docTemplate = `{
                 "num_red_cards": {
                     "type": "integer"
                 },
-                "success": {
-                    "type": "boolean"
+                "user": {
+                    "$ref": "#/definitions/entity.User"
                 }
             }
         },

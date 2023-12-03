@@ -523,8 +523,8 @@ definitions:
         type: integer
       num_red_cards:
         type: integer
-      success:
-        type: boolean
+      user:
+        $ref: '#/definitions/entity.User'
     type: object
   response.UpdateUserResponse:
     properties:

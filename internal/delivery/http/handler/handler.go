@@ -643,7 +643,7 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 		}
 	}
 
-	cards, numBlueCards, numGreenCards, numRedCards, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
+	cards, numBlueCards, numRedCards, numGreenCards, err := h.cardUsecase.GetReviewCardsByDeck(&deckID, deck.MaxNewCards-deck.CurNewCards, deck.MaxReviewCards-deck.CurReviewCards)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
@@ -665,8 +665,14 @@ func (h *restHandler) UpdateReviewCards(c *gin.Context) {
 		return
 	}
 
+	user, err := h.userUsecase.GetUserByID(&uID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return
+	}
+
 	resp := response.UpdateReviewCardsResponse{
-		Success:       true,
+		User:          user,
 		Cards:         *cards,
 		NumBlueCards:  numBlueCards,
 		NumRedCards:   numRedCards,

@@ -12,11 +12,11 @@ type UpdateCardResponse struct {
 }
 
 type UpdateReviewCardsResponse struct {
-	Success       bool          `json:"success"`
 	Cards         []entity.Card `json:"cards"`
 	NumBlueCards  int           `json:"num_blue_cards"`
 	NumRedCards   int           `json:"num_red_cards"`
 	NumGreenCards int           `json:"num_green_cards"`
+	User          *entity.User  `json:"user"`
 }
 
 type CopyCardToDeckResponse struct {
