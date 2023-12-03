@@ -987,6 +987,7 @@ func (h *restHandler) SignUpGetAllData(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
 		return
 	}
+	user.ID, _ = primitive.ObjectIDFromHex(uID)
 
 	accessToken, er := h.signUpUsecase.CreateAccessToken(user, &bootstrap.E.AccessTokenSecret, bootstrap.E.AccessTokenExpiryHour)
 	if er != nil {

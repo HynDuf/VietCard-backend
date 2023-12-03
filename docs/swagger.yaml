@@ -359,7 +359,6 @@ definitions:
     - card_ids
     - deck_id
     - is_correct
-    - total_xp
     type: object
   request.UpdateUserRequest:
     properties:

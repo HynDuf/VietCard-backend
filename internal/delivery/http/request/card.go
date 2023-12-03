@@ -25,7 +25,7 @@ type UpdateCardRequest struct {
 
 type UpdateReviewCardsRequest struct {
 	DeckID    primitive.ObjectID   `json:"deck_id" binding:"required"`
-	TotalXP   int                  `json:"total_xp" binding:"required"`
+	TotalXP   int                  `json:"total_xp"`
 	CardIDs   []primitive.ObjectID `json:"card_ids" binding:"required"`
 	IsCorrect []bool               `json:"is_correct" binding:"required"`
 }

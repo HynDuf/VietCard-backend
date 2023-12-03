@@ -1539,8 +1539,7 @@ const docTemplate = `{
             "required": [
                 "card_ids",
                 "deck_id",
-                "is_correct",
-                "total_xp"
+                "is_correct"
             ],
             "properties": {
                 "card_ids": {
